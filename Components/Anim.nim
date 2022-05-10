@@ -221,6 +221,7 @@ declUpdate(float)
 declUpdate(Vector3)
 
 
+
 method update*(a: ConstProvider[Vector3]) =
   #doNothing
   static:

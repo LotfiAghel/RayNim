@@ -7,6 +7,7 @@ import std/typetraits
 
 import macros
 import  ../../macroTools/ConstructorCreator/ConstructorCreator
+import  ../../macroTools/ConstructorCreator/Basic
 type
   Person = object
     name: string
@@ -16,15 +17,10 @@ macro ECHO*(a:static[string])=
   echo "----------------------------",a
 
 
-type A = enum a0 = 2, a1 = 4, a2
-type B = enum b0 = 2, b1, b2
-assert A is enum
-assert A is HoleyEnum
 
 
 
 
-template dfv(name: untyped) {.pragma.}
 
 
 
@@ -35,7 +31,7 @@ type
         
 
 
-createConstructor3(RenderComp)
+createConstructor(RenderComp)
 
 var z{. compileTime.}:NimNode        
 
