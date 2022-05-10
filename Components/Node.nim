@@ -27,7 +27,7 @@ macro ECHO*(a:static[string])=
 type
     RenderComp* = ref object of RootObj
         position* : Vector2
-        visible*{. dfv(true) .} : bool 
+        #visible*{. dfv(true) .} : bool 
         
 
 
@@ -52,8 +52,8 @@ proc someProcThatMayRunInCompileTime(): bool =
 
 getBodySAve(RenderComp)
 
-proc MyNew_RenderComp(visible:bool=true):RenderComp=
-    return RenderComp(visible:visible)
+#[proc MyNew_RenderComp(visible:bool=true):RenderComp=
+    return RenderComp(visible:visible)]#
 
 #[
 macro getImp2(t:type):NimNode=

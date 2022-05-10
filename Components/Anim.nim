@@ -63,12 +63,15 @@ type
     rProvider*: ValueProvider[float]
     lProvider*: ValueProvider[float]
     textRatio*: float
-  FrameSequnce* = ref object of AnimComp
+  FrameData = object
+    time_end*:float
+    mesh*:RenderComp
+  FrameSequence* = ref object of AnimComp
     valueSource*: ValueProvider[float]
     startTime*:float
     activeMeshIdx*:int
-    timeFrames*:seq[float]
-    sumOfTimeFrames:float
+    frames*:seq[FrameData]
+    
 
 var p_p : ValueProvider[float]=LinearProvider[float](time: ConstProvider[float](value:0), endPosition: 0.0, 
       start:0.0)
@@ -238,19 +241,35 @@ method update*(a: MeshProvider) =
   updateMeshSpaceFromClosePath(a.mesh, a.path, l,r, a.textRatio)
   updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(cfloat), 0)
  
-method update*(a: FrameSequnce) =
+method update*(a: FrameSequence) =
   a.valueSource.update()
   var v = a.valueSource.value-a.startTime;
-  v=v-(v/a.sumOfTimeFrames).int * a.sumOfTimeFrames
+  echo a.frames.len
+  v=v-(v/a.frames[4].time_end).int * a.frames[4].time_end
   var idx=0;
-  for val in a.timeFrames:
-    v-=val
+  for val in a.frames:
+    v-=val.time_end
     if v<0 :
       break;
     idx =idx + 1
-  for i in a.target.childs:
-    i.visible=false
-  a.target.childs[idx].visible=true
+  a.target.drawComps[0] = a.frames[idx].mesh  
+
+
+
+    
+proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float) =
+  a.frames = @[]
+  
+  for i in 0..<rows:
+    for j in 0..<cols:
+      var model = loadModelFromMesh(makeRectMesh([i*1.0/rows,j*1.0/rows],[i*1.0/rows,j*1.0/rows]))
+      model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture 
+      var rr2 = D3Renderer(model: model)
+      a.frames.add(
+        FrameData(time_end:time*(i*cols+j+1)/(rows*cols),mesh:rr2)
+      )
+  
+  
   
   
 

@@ -2,7 +2,6 @@ import lenientops, math, times, strformat, atomics, system/ansi_c
 import nimraylib_now
 from nimraylib_now/rlgl as rl import nil
 import Node
-import Anim
 import std/math
 import macros
 
@@ -105,19 +104,9 @@ proc makeRectMesh*(minn,maxx:array[2,float]): Mesh =
 
   uploadMesh(result.addr, false)
 
-proc makeFrameSeq(texture:Texture2D,rows,cols:int):GNode=
-    var tt = GNode(
-              transform: scale(1.0, 1.0, 1.0),
-              drawComps: @[],
-    )
-    for i in 0..<rows:
-      for j in 0..<cols:
-        var model = loadModelFromMesh(makeRectMesh([i*1.0/rows,j*1.0/rows],[i*1.0/rows,j*1.0/rows]))
-        model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture 
-        var rr2 = D3Renderer(model: model)
-        tt.drawComps.add(rr2)
+
         
-    return tt;
+    
 
 
 macro StaticFor(idx:untyped, N: static[int],body:NimNode):NimNode=
