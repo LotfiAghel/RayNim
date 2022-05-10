@@ -244,15 +244,17 @@ method update*(a: MeshProvider) =
 method update*(a: FrameSequence) =
   a.valueSource.update()
   var v = a.valueSource.value-a.startTime;
-  echo a.frames.len
-  v=v-(v/a.frames[4].time_end).int * a.frames[4].time_end
+  
+  var last=a.frames[a.frames.len-1].time_end
+  v=v-(v/last).int * last
   var idx=0;
-  for val in a.frames:
-    v-=val.time_end
-    if v<0 :
+  for i in 0..< a.frames.len :
+    idx = i
+    if v<a.frames[i].time_end :
       break;
-    idx =idx + 1
+      
   a.target.drawComps[0] = a.frames[idx].mesh  
+  
 
 
 
@@ -262,7 +264,7 @@ proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float) =
   
   for i in 0..<rows:
     for j in 0..<cols:
-      var model = loadModelFromMesh(makeRectMesh([i*1.0/rows,j*1.0/rows],[i*1.0/rows,j*1.0/rows]))
+      var model = loadModelFromMesh(makeRectMesh([0.0,0.0],[1.0,1.0],[i*1.0/rows,j*1.0/cols],[(i+1)*1.0/rows,(j+1)*1.0/cols]))
       model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture 
       var rr2 = D3Renderer(model: model)
       a.frames.add(

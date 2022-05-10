@@ -86,7 +86,7 @@ proc makeRectPath*(minn,maxx:array[2,float]): seq[PathPoint] =
       PathPoint(pos:(maxx[0],minn[1]) ,normal:(-1.0,1.0)),
   ]  
 
-proc makeRectMesh*(minn,maxx:array[2,float]): Mesh =
+proc makeRectMesh*(minn,maxx:array[2,float],minnText,maxxText:array[2,float]): Mesh =
   allocateMeshData(result, 2)
   var verts=[minn[0],minn[1],0, minn[0],maxx[1],0,       maxx[0],minn[1],0,
               maxx[0].float, maxx[1],0,  maxx[0],minn[1], 0,     minn[0], maxx[1],0 
@@ -96,8 +96,8 @@ proc makeRectMesh*(minn,maxx:array[2,float]): Mesh =
   for idx, val in [0.cfloat,0,1, 0,0,1, 0,0,1]:
     result.normals[idx] = val
   
-  var txts=[0.cfloat,0, 0,1, 1,0,
-            1.cfloat,1, 1,0, 0,1
+  var txts=[minnText[0],minnText[1], minnText[0],maxxText[1], maxxText[0],minnText[1],
+            maxxText[0],maxxText[1], maxxText[0],minnText[1], minnText[0],maxxText[1]
   ]
   for idx, val in txts:
     result.texcoords[idx] = val
