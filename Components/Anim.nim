@@ -45,9 +45,9 @@ type
     valueSource*: ValueProvider[float]
   SinEfect2* = ref object of ValueProvider[float]
     valueSource*: ValueProvider[float]
-    innerMult*:float
-    outerMult*:float
-    outerPlus*:float
+    innerMult*: float
+    outerMult*: float
+    outerPlus*: float
 
 
   LinearProvider*[T] = ref object of ValueProvider[T]
@@ -64,18 +64,18 @@ type
     lProvider*: ValueProvider[float]
     textRatio*: float
   FrameData = object
-    time_end*:float
-    mesh*:RenderComp
+    time_end*: float
+    mesh*: RenderComp
   FrameSequence* = ref object of AnimComp
     valueSource*: ValueProvider[float]
-    startTime*:float
-    activeMeshIdx*:int
-    frames*:seq[FrameData]
-    
+    startTime*: float
+    activeMeshIdx*: int
+    frames*: seq[FrameData]
 
-var p_p : ValueProvider[float]=LinearProvider[float](time: ConstProvider[float](value:0), endPosition: 0.0, 
-      start:0.0)
-var p_p2 : ValueProvider[Vector3]=LinearProvider[Vector3](time: ConstProvider[float](value:0), endPosition: (0.0, 0.0, PI/2), 
+
+var p_p: ValueProvider[float] = LinearProvider[float](time: ConstProvider[float](value: 0), endPosition: 0.0,
+      start: 0.0)
+var p_p2: ValueProvider[Vector3] = LinearProvider[Vector3](time: ConstProvider[float](value: 0), endPosition: (0.0, 0.0, PI/2),
       start: (0.0, 0.0, 0.0))
 
 
@@ -126,49 +126,49 @@ proc setPostion*(a: GNode, value: Vector3){.inline.} =
 #AnimCompCreator(FastRotateTo, setRotation, LinearProvider)
 var logPrint* = false
 #var logNumbers*[T]=0
-template ForLoop22(time:NimNode,l:int,r:int,body:untyped)=
+template ForLoop22(time: NimNode, l: int, r: int, body: untyped) =
   block:
     for i in l..<r:
       body
-    
+
 import macros
-var z{.compileTime}=0
+var z{.compileTime.} = 0
 
 
-template typeDeclPub(a:untyped, b): untyped =
-    type a* = ref object of b
-typeDeclPub(bb,RootObj)
+template typeDeclPub(a: untyped, b): untyped =
+  type a* = ref object of b
+typeDeclPub(bb, RootObj)
 
 
 
 
-macro SetNumber*(a:type):untyped=
-  template createVar(ab:NimNode): untyped=
-    var ab*:int 
-  
-  var tt="GetNumber__" & $$$(a)
+macro SetNumber*(a: type): untyped =
+  template createVar(ab: NimNode): untyped =
+    var ab*: int
+
+  var tt = "GetNumber__" & $$$(a)
   echo tt
-  var z= getAst(createVar(newIdentNode(tt)))
+  var z = getAst(createVar(newIdentNode(tt)))
   #echo z.treeRepr
   #z.child
   return z
-  
-  
 
-macro GetNumber*(a:type):untyped=
-  template getVar(ab:NimNode): untyped=
-    ab 
-  var tt="GetNumber__" & $$$(a)
-  echo "get " , tt
+
+
+macro GetNumber*(a: type): untyped =
+  template getVar(ab: NimNode): untyped =
+    ab
+  var tt = "GetNumber__" & $$$(a)
+  echo "get ", tt
   return getAst(getVar(newIdentNode(tt)))
-  
+
 
 SetNumber(LinearProvider[LinearProvider[Vector3]])
 
-macro SetNumbers*(a:varargs[type]):seq[int]=
+macro SetNumbers*(a: varargs[type]): seq[int] =
   echo "salam"
-  
-  
+
+
 
 
 #SetNumbers(float,float)
@@ -190,14 +190,14 @@ method update*(a: LinearProvider[float]) =
 
 
 
-template declUpdate(T:type)=
+template declUpdate(T: type) =
   SetNumber(T)
   method update*(a: LinearProvider[T]) =
     a.time.update()
     var tt = a.time.value;
     a.value = a.start * (1-tt) + a.endPosition * tt
     GetNumber(T) = GetNumber(T) + 1
-    
+
 declUpdate(float)
 declUpdate(Vector3)
 
@@ -208,51 +208,54 @@ method update*(a: ConstProvider[Vector3]) =
   static:
     echo "do nothing"
 
-proc myGlBindBuffer()=
+proc myGlBindBuffer() =
   discard
-proc myglBufferSubData()=
+proc myglBufferSubData() =
   discard
 method update*(a: MeshProvider) =
   a.rProvider.update()
   var r = abs(a.rProvider.value)
   var l = abs(a.lProvider.value)
-  updateMeshSpaceFromClosePath(a.mesh, a.path, l,r, a.textRatio)
-  updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(cfloat), 0)
- 
+  updateMeshSpaceFromClosePath(a.mesh, a.path, l, r, a.textRatio)
+  updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
+      cfloat), 0)
+
 method update*(a: FrameSequence) =
   a.valueSource.update()
   var v = a.valueSource.value-a.startTime;
-  
-  var last=a.frames[a.frames.len-1].time_end
-  v=v-(v/last).int * last
-  var idx=0;
-  for i in 0..< a.frames.len :
+
+  var last = a.frames[a.frames.len-1].time_end
+  v = v-(v/last).int * last
+  var idx = 0;
+  for i in 0 ..< a.frames.len:
     idx = i
-    if v<a.frames[i].time_end :
+    if v < a.frames[i].time_end:
       break;
 
-  a.target.drawComps[0] = a.frames[idx].mesh  
-  
+  a.target.drawComps[0] = a.frames[idx].mesh
 
 
 
-    
-proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float):FrameSequence{.discardable.} =
+
+
+proc init*(a: FrameSequence, texture: Texture2D, rows, cols: int,
+    time: float): FrameSequence{.discardable.} =
   a.frames = @[]
-  
+
   for i in 0..<rows:
     for j in 0..<cols:
-      var model = loadModelFromMesh(makeRectMesh([0.0,0.0],[1.0,1.0],[i*1.0/rows,j*1.0/cols],[(i+1)*1.0/rows,(j+1)*1.0/cols]))
-      model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture 
+      var model = loadModelFromMesh(makeRectMesh([0.0, 0.0], [1.0, 1.0], [
+          i*1.0/rows, j*1.0/cols], [(i+1)*1.0/rows, (j+1)*1.0/cols]))
+      model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture
       var rr2 = D3Renderer(model: model)
       a.frames.add(
-        FrameData(time_end:time*(i*cols+j+1)/(rows*cols),mesh:rr2)
+        FrameData(time_end: time*(i*cols+j+1)/(rows*cols), mesh: rr2)
       )
   return a
-  
-  
-  
-  
+
+
+
+
 
 
 method update(a: MoveTo) =
@@ -280,7 +283,7 @@ proc myClone*[T](a: LinearProvider[T]): LinearProvider[T] =
   res.start = a.start
   return res
 
-logPrint=true
+logPrint = true
 p_p.update()
 p_p2.update()
 
@@ -288,7 +291,7 @@ p_p2.update()
 
 
 echo "===================="
-echo "float ",GetNumber(float)
-echo "vec3 ",GetNumber(Vector3)
+echo "float ", GetNumber(float)
+echo "vec3 ", GetNumber(Vector3)
 
 echo "===================="
