@@ -3,7 +3,7 @@ import nimraylib_now
 from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
-
+import ../../macroTools/macroTool
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
@@ -140,29 +140,7 @@ template typeDeclPub(a:untyped, b): untyped =
 typeDeclPub(bb,RootObj)
 
 
-template badNodeKind(n, f) =
-  error("Invalid node kind " & $n.kind & " for macros.`" & $f & "`", n)
 
-proc `$$$`*(node: NimNode): string =
-  ## Get the string of an identifier node.
-  case node.kind
-  of nnkPostfix:
-    result = node.basename.strVal & "*"
-  of nnkStrLit..nnkTripleStrLit, nnkCommentStmt, nnkSym, nnkIdent:
-    result = node.strVal
-  of nnkOpenSymChoice, nnkClosedSymChoice:
-    result = $node[0]
-  of nnkAccQuoted:
-    result = $node[0]
-  of nnkBracketExpr:
-    echo node.treeRepr
-    result = "__braketOpen__"
-    
-    for i in node:
-      result=result  & $$$i & "_sp_"
-    result=result & "__close__"
-  else:
-    badNodeKind node, "$$$"
 
 macro SetNumber*(a:type):untyped=
   template createVar(ab:NimNode): untyped=
@@ -252,14 +230,14 @@ method update*(a: FrameSequence) =
     idx = i
     if v<a.frames[i].time_end :
       break;
-      
+
   a.target.drawComps[0] = a.frames[idx].mesh  
   
 
 
 
     
-proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float) =
+proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float):FrameSequence{.discardable.} =
   a.frames = @[]
   
   for i in 0..<rows:
@@ -270,6 +248,7 @@ proc init*(a: FrameSequence,texture:Texture2D ,rows,cols:int,time:float) =
       a.frames.add(
         FrameData(time_end:time*(i*cols+j+1)/(rows*cols),mesh:rr2)
       )
+  return a
   
   
   

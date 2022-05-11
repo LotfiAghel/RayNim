@@ -13,8 +13,7 @@ type
     name: string
     age: int
 
-macro ECHO*(a:static[string])=
-  echo "----------------------------",a
+
 
 
 
@@ -121,7 +120,6 @@ proc addOnUpdate*(t: GNode, a: AnimComp): GNode =
 proc addChild*(t: GNode, a: GNode): GNode {.discardable .} =
     t.childs.add a
     return t
-
 
 
 

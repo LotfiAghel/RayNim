@@ -109,16 +109,7 @@ proc makeRectMesh*(minn,maxx:array[2,float],minnText,maxxText:array[2,float]): M
     
 
 
-macro StaticFor(idx:untyped, N: static[int],body:NimNode):NimNode=
-  echo "for"
-  var x:NimNode=newNimNode(nnkBlockType)
-  
-  for i in 0.. 3:
-    echo "macroo" , i
-    x.add(body)
-    #x.add(body)
-  return x
-  
+
 
 proc addT[N : static[int],T](a:ptr UncheckedArray[T],idx:cushort, v:array[N, T] )=
   a[idx * N + 0] = v[0]
