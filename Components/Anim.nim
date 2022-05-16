@@ -116,10 +116,15 @@ method update*(a: SinEfect2) =
   var tt = a.valueSource.value
   a.value = sin(tt*PI*2*a.innerMult)*a.outerMult+a.outerPlus
 
-proc setPostion*(a: GNode, value: Vector3){.inline.} =
+proc setPostion*(a: GNode, value: Vector3):GNode{.inline , discardable.} =
+  result=a;
   a.position = value
+  
 
-
+proc setPostion*(a: GNode, value: array[3,float]):GNode{.inline , discardable.} =
+  result=a;
+  a.position = (value[0],value[1],value[2])
+  
 
 
 #AnimCompCreator(FastMoveTo, setPostion, LinearProvider)
