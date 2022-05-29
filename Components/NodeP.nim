@@ -93,8 +93,7 @@ proc makeRectMesh*(minn, maxx: array[2, float], minnText, maxxText: array[2,
         float]): Mesh =
     allocateMeshData(result, 2)
     var verts = [minn[0], minn[1], 0, minn[0], maxx[1], 0, maxx[0], minn[1], 0,
-                maxx[0].float, maxx[1], 0, maxx[0], minn[1], 0, minn[0], maxx[
-                        1], 0
+                maxx[0].float, maxx[1], 0, maxx[0], minn[1], 0, minn[0], maxx[1], 0
     ]
     for idx, val in verts:
         result.vertices[idx] = val

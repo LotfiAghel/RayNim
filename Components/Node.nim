@@ -100,9 +100,12 @@ type
     transform*: Matrix
     position*: Vector3
     childs*: seq[GNode]
+    parent* : GNode
     drawComps*: seq[RenderComp]
     onUpdate*: seq[AnimComp]
     visible*: bool
+  GNode2D* = ref object of GNode
+    contentSize*: Vector2
   AnimComp* = ref object of RootObj
     target*: GNode
 
@@ -119,6 +122,7 @@ proc addOnUpdate*(t: GNode, a: AnimComp): GNode =
 
 proc addChild*(t: GNode, a: GNode): GNode {.discardable.} =
   t.childs.add a
+  a.parent=t
   return t
 
 

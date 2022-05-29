@@ -10,24 +10,24 @@ import ../Components/NodeP
 import ../Components/Node
 
 
-proc spriteRendererCreate*(texure:Texture2D):D3Renderer=
+proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0):D3Renderer=
     #var mesh = loadModelFromMesh(makeMesh())
-    var t=1.0
+    var t=scale
     t*=0.5;
-    var mesh = loadModelFromMesh(makeRectMesh([-float(texure.width)*t,-float(texure.height)*t],[float(texure.width)*t,float(texure.height)*t],[0.0,0.0],[1.0,1.0]))
+    var mesh = loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],[0.0,0.0],[1.0,1.0]))
     #var mesh = loadModelFromMesh(makeRectMesh([0.0,0],[1.0,1.0],[0.0,0.0],[1.0,1.0]))
-    mesh.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texure # MATERIAL_MAP_DIFFUSE is now ALBEDO
+    mesh.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
     result = D3Renderer(model: mesh)
 
 
 
 
-proc spriteNodeCreate*(texure:Texture2D):GNode=
+proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0):GNode=
     
     result=GNode(
                   position: (0.0,0.0, 0.0),
                   transform: scale(1.0, 1.0, 1.0),
                   drawComps: @[
-                          spriteRendererCreate(texure).RenderComp,
+                          spriteRendererCreate(texture,scale).RenderComp,
                           
                   ])
