@@ -36,3 +36,15 @@ proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
                           spriteRendererCreate(texture,scale,flipY).RenderComp,
                           
                   ])
+
+
+
+proc buttonNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
+    
+    result=Button(
+                  position: (0.0,0.0, 0.0),
+                  transform: scale(1.0, 1.0, 1.0),
+                  contentSize:(texture.width.float,texture.height.float),
+                  drawComps: @[
+                          spriteRendererCreate(texture,scale,flipY).RenderComp,
+                  ])

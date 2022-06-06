@@ -94,6 +94,10 @@ var zz: NimNode = z
 
 var defaultCamera*: Camera
 
+type onClick = proc() 
+
+  
+
 
 type
   GNode* = ref object of RootObj
@@ -106,6 +110,12 @@ type
     visible*: bool
   GNode2D* = ref object of GNode
     contentSize*: Vector2
+  Button* = ref object of GNode2D
+    onClick* : onClick
+    btnRect* : BtnRect
+  BtnRect* =ref object 
+    rect* : Rectangle
+    btn*   : Button
   AnimComp* = ref object of RootObj
     target*: GNode
 

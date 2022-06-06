@@ -19,8 +19,12 @@ method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
     for c in a.childs:
         c.visit(newP, newT, camera)
 
-
-
+method visit*(a: Button, pos: Vector3, gtransform: Matrix,
+        camera: Camera) {.inline.} =
+    procCall a.GNode.visit(pos,gtransform,camera);
+    #a.btnRect
+    
+    
 method update*(a: GNode) {.inline.} =
     for c in a.onUpdate:
         c.update()
