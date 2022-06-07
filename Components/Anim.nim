@@ -41,6 +41,9 @@ type
     zeroPoint*: float
     endPoint*: float
     valueSource*: ValueProvider[float]
+  TimeShift* = ref object of ValueProvider[float]
+    shiftValue*: float
+    valueSource*: ValueProvider[float]
   SinEfect* = ref object of ValueProvider[float]
     valueSource*: ValueProvider[float]
   SinEfect2* = ref object of ValueProvider[float]
@@ -54,6 +57,7 @@ type
     time*: ValueProvider[float]
     endPosition*: T
     start*: T
+    
 
   ConstProvider*[T] = ref object of ValueProvider[T]
 
@@ -103,7 +107,11 @@ method update*(a: TimeRange) =
   var tt = a.valueSource.value
   a.value = (tt-a.zeroPoint)/(a.endPoint-a.zeroPoint)
 
-
+method update*(a: TimeShift) =
+  a.valueSource.update()
+  var tt = a.valueSource.value
+  a.value = tt+a.shiftValue
+  
 method update*(a: SinEfect) =
   a.valueSource.update()
   var tt = a.valueSource.value

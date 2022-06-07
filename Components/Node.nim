@@ -125,7 +125,7 @@ method update*(a: AnimComp){.base.} =
 method clone*(a: AnimComp): AnimComp =
   echo "nothing"
 
-proc addOnUpdate*(t: GNode, a: AnimComp): GNode =
+proc addOnUpdate*(t: GNode, a: AnimComp): GNode{.discardable.}  =
   a.target = t;
   t.onUpdate.add a
   return t
