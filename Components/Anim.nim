@@ -36,6 +36,10 @@ type
     scaleProvider*: ValueProvider[Vector3]
     rotateProvider*: ValueProvider[Vector3]
 
+  SetTintTo* = ref object of AnimComp
+    scaleProvider*: ValueProvider[Color]
+    
+
   TimeProvider* = ref object of ValueProvider[float]
   TimeRange* = ref object of ValueProvider[float]
     zeroPoint*: float
@@ -218,8 +222,20 @@ template declUpdate(T: type) =
     a.value = a.start * (1-tt) + a.endPosition * tt
     GetNumber(T) = GetNumber(T) + 1
 
+
 declUpdate(float)
 declUpdate(Vector3)
+
+SetNumber(Color)
+method update*(a: LinearProvider[Color]) =
+  a.time.update()
+  var tt = a.time.value;
+  a.value.r = uint8(a.start.r * (1-tt) + a.endPosition.r * tt)
+  a.value.g = uint8(a.start.g * (1-tt) + a.endPosition.g * tt)
+  a.value.b = uint8(a.start.b * (1-tt) + a.endPosition.b * tt)
+  a.value.a = uint8(a.start.r * (1-tt) + a.endPosition.r * tt)
+
+  
 
 
 
@@ -292,6 +308,15 @@ method update(a: SetTransformTo) =
   a.rotateProvider.update();
   a.target.transform = scale(a.scaleProvider.value.x, a.scaleProvider.value.y,
       a.scaleProvider.value.z)*rotateXYZ(a.rotateProvider.value)
+
+
+
+method update(a: SetTintTo) =
+  a.scaleProvider.update()
+  var color=a.scaleProvider.value
+  for i in a.target.drawComps:
+    i.tint = color
+
 
 
 

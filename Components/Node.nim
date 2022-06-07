@@ -4,7 +4,8 @@ from nimraylib_now/rlgl as rl import nil
 import macros
 import typeinfo
 import std/typetraits
-
+import constructor/constructor
+import constructor/defaults
 import macros
 import ../../macroTools/ConstructorCreator/ConstructorCreator
 import ../../macroTools/ConstructorCreator/Basic
@@ -24,8 +25,9 @@ type
 
 
 type
-  RenderComp* = ref object of RootObj
+  RenderComp*{.defaults.} = ref object of RootObj
     position*: Vector2
+    tint* :Color =White
     #visible*{. dfv(true) .} : bool
 
 
@@ -156,13 +158,20 @@ method draw*(a: RenderComp, pos: Vector3, gtransform: Matrix,
   echo "RenderComp::draw"
 
 
+
 type
   ImageRenderer* = ref object of RenderComp
     texture*: Texture2D
 
-  D3Renderer* = ref object of RenderComp
+  D3Renderer*{.defaults.} = ref object of RenderComp
     model*: Model
     shaderSet*: proc ()
+    
+  LabelRenderer* = ref object of RenderComp
+    text*: string
+    font* :Font
+
+#implDefaults(D3Renderer)     
 
 
 proc myProject(matrix: Matrix, inp: Vector3): Vector2 =
@@ -183,10 +192,14 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   a.model.transform = gtransform
   if not isNil(a.shaderSet):
     a.shaderSet();
-  drawModel(a.model, pos, 1.0, White)
+  drawModel(a.model, pos, 1.0, a.tint)
 
 
-
-
+method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
+        camera: Camera) {.inline.} =
+  var size=measureTextEx(a.font, a.text,(float)a.font.baseSize, 0.0)
+  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  0 ), (float)a.font.baseSize, 0.0, White)
+  
+  #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
 
