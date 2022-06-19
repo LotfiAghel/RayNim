@@ -9,7 +9,8 @@ import macros
 
 method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
-
+    if a.visible==false:
+        return;
     var newT = gtransform * a.transform
     var newP = pos+a.position.transform(gtransform)
 
@@ -26,6 +27,8 @@ method visit*(a: Button, pos: Vector3, gtransform: Matrix,
     
     
 method update*(a: GNode) {.inline.} =
+    if a.visible==false:
+        return;
     for c in a.onUpdate:
         c.update()
 

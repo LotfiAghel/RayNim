@@ -10,12 +10,12 @@ import macros
 import ../../macroTools/ConstructorCreator/ConstructorCreator
 import ../../macroTools/ConstructorCreator/Basic
 type
-  Person = object
+  Person{.defaults.} = object
     name: string
     age: int
 
 
-
+implDefaults(Person)
 
 
 
@@ -96,30 +96,50 @@ var zz: NimNode = z
 
 var defaultCamera*: Camera
 
-type onClick = proc() 
+type OnClick = proc() 
 
   
 
 
 type
-  GNode* = ref object of RootObj
+  GNode*  = ref object of RootObj
     transform*: Matrix
     position*: Vector3
     childs*: seq[GNode]
     parent* : GNode
     drawComps*: seq[RenderComp]
     onUpdate*: seq[AnimComp]
-    visible*: bool
+    visible*{. dfv(true) .}: bool
   GNode2D* = ref object of GNode
     contentSize*: Vector2
   Button* = ref object of GNode2D
-    onClick* : onClick
+    onClick* : OnClick
     btnRect* : BtnRect
   BtnRect* =ref object 
     rect* : Rectangle
     btn*   : Button
   AnimComp* = ref object of RootObj
     target*: GNode
+
+#implDefaults(GNode) 
+#createConstructor(GNode)
+#create_GNode()
+#[proc init(T: typedesc[GNode], name: string, age: int): GNode {.constr.} =
+  result]#
+
+
+#[macro init(T: typedesc[GNode], name: string, age: int): NimNode  =
+  let args = callsite()]#
+#initGNode()
+
+method removeFromParent*(a:GNode){.base.}=
+  try:
+    var z=a.parent.childs.find(a)
+    echo z,"/",a.parent.childs.len
+    a.parent.childs.delete(z)
+    discard
+  except:
+    echo "aaa"
 
 method update*(a: AnimComp){.base.} =
   echo "AnimComp.update"
@@ -144,9 +164,10 @@ proc addChild*(t: GNode, a: GNode): GNode {.discardable.} =
 proc newGNode*(transform: Matrix = scale(1.0, 1.0, 1.0),
         position: Vector3 = (
         0.0, 0.0, 0.0), childs: seq[GNode] = @[], drawComps: seq[
-        RenderComp] = @[]): GNode =
+        RenderComp] = @[],
+        visible=true): GNode =
   GNode(transform: transform, position: position, childs: childs,
-          drawComps: drawComps)
+          drawComps: drawComps,visible:visible)
 
 type
   LastNode* = ref object of GNode

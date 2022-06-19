@@ -27,7 +27,9 @@ type
   ValueProvider*[T] = ref object of ValueProvider0
     value*: T
   CorutineHandler* = ref object of AnimComp
-    provider*: iterator(): int
+    provider*: iterator(): bool
+  CoroutineListHandler* = ref object of AnimComp
+    providers*: seq[iterator(): bool]
 
   MoveTo* = ref object of AnimComp
     provider*: ValueProvider[Vector3]
@@ -301,6 +303,15 @@ method update(a: MoveTo) =
 
 method update(a: CorutineHandler) =
   discard a.provider()
+  
+  #a.target.setPostion(a.provider.value)
+
+method update(a: CoroutineListHandler) =
+  if a.providers.len<1 :
+    return ;#TODO set done=true
+  var done=a.providers[0]()
+  if done :
+    a.providers.del(0)
   #a.target.setPostion(a.provider.value)
 
 method update(a: SetTransformTo) =

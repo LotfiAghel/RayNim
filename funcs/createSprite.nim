@@ -30,10 +30,10 @@ proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Rend
 
 proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
     
-    result=GNode(
-                  position: (0.0,0.0, 0.0),
-                  transform: scale(1.0, 1.0, 1.0),
-                  drawComps: @[
+    result=newGNode(
+                  position= (0.0,0.0, 0.0),
+                  transform= scale(1.0, 1.0, 1.0),
+                  drawComps= @[
                           spriteRendererCreate(texture,scale,flipY).RenderComp,
                           
                   ])
@@ -49,3 +49,4 @@ proc buttonNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
                   drawComps: @[
                           spriteRendererCreate(texture,scale,flipY).RenderComp,
                   ])
+    result.visible=true;
