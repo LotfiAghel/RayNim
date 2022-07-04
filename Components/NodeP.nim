@@ -141,9 +141,9 @@ proc addVec3*(a: ptr UncheckedArray[cfloat], idx: cushort, v: Vector3) =
     a[idx*3+2] = v.z
 
 
-proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint]) =
-    res.vertexCount = path.len * 2
-    res.triangleCount = path.len*2
+proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=2) =
+    res.vertexCount = path.len * rlengh
+    res.triangleCount = path.len* (rlengh-1)*2
 
     res.vertices = cast[ptr UncheckedArray[cfloat]](memAlloc(res.vertexCount *
             3 * sizeof(cfloat)))
@@ -151,58 +151,53 @@ proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint]) =
             2 * sizeof(cfloat)))
     res.normals = cast[ptr UncheckedArray[cfloat]](memAlloc(res.vertexCount *
             3 * sizeof(cfloat)))
-    res.indices = cast[ptr UncheckedArray[cushort]](memAlloc(res.vertexCount *
-            2 * 3 * sizeof(cushort)))
+    res.indices = cast[ptr UncheckedArray[cushort]](memAlloc(res.triangleCount *
+             3 * sizeof(cushort)))
 
-proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], l,
-        r: float, textRatio: float) =
-    var vrtxH: cushort = 0
+proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float) =
 
-    var vrtz = path.len*2;
+
     var d = 0.float
-    for i in 0 .. (path.len-1):
-
-        var p0 = path[i].pos+path[i].normal*l
-        var p1 = path[i].pos-path[i].normal*r
-        var
-            nxt0 = vrtxH+2
-            nxt1 = vrtxH+3
-
-        if i == path.len-1:
-            nxt0 = 0
-            nxt1 = 1
-
-        addT[3, cfloat](result.vertices, vrtxH, [p0.x, p0.y, 0])
-        addT[3, cfloat](result.normals, vrtxH, [cfloat(0), 0, 1])
-        addT[2, cfloat](result.texcoords, vrtxH, [d.cfloat, 0.cfloat])
-        addT[3, cushort](result.indices, vrtxH, [cushort(vrtxH), vrtxH+1, nxt0])
+    for i in 0..<path.len:
 
 
+        var vrtxH = (i*r.len).cushort
+        for j in 0..<r.len:
+            var p = path[i].pos-path[i].normal*r[j]
+            addT[3, cfloat](result.vertices, vrtxH+cushort(j), [p.x, p.y, 0])
+            addT[3, cfloat](result.normals, vrtxH+cushort(j), [cfloat(0), 0, 1])
+            addT[2, cfloat](result.texcoords, vrtxH+cushort(j), [d.cfloat, textR[j]])
+
+        for j in 0..<r.len-1:
+            var
+                indicesCur = vrtxH+(j*2).cushort
+                cur  = vrtxH+(j).cushort
+                nxt0 = vrtxH+cushort(j+r.len)
+                nxt1 = vrtxH+cushort(j+r.len+1)
+            if i == path.len-1:
+                nxt0 = j.cushort
+                nxt1 = j.cushort+1
+            addT[3, cushort](result.indices, indicesCur, [cur, cur+1, nxt0])
+            addT[3, cushort](result.indices, indicesCur+1, [cur+1, nxt1, nxt0])
 
 
-
-        vrtxH = vrtxH+1
-
-
-        addT[3, cfloat](result.vertices, vrtxH, [p1.x, p1.y, 0])
-        addT[3, cfloat](result.normals, vrtxH, [cfloat(0), 0, 1])
-
-        addT[2, cfloat](result.texcoords, vrtxH, [d.cfloat, 1.cfloat])
-        addT[3, cushort](result.indices, vrtxH, [vrtxH, nxt1, nxt0])
-
-        d = d+(p1-p0).length*textRatio
-        vrtxH = vrtxH+1
+        
+        d = 0#d+(p1-p0).length*textRatio
+        #vrtxH = vrtxH+cushort(r.len)*2
 
 
 
 
 
-proc makeMeshFromClosePath*(path: seq[PathPoint], r: float,
+proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],
         textRatio: float): Mesh =
 
-    makeMeshSpaceFromClosePath(result, path);
+    var txt:seq[float]
+    for i in 0..<r.len:
+        txt.add 1.0*i/(r.len-1)
+    makeMeshSpaceFromClosePath(result, path,r.len);
 
-    updateMeshSpaceFromClosePath(result, path, r, r, textRatio)
+    updateMeshSpaceFromClosePath(result, path, r,txt, textRatio)
 
     uploadMesh(result.addr, false)
 

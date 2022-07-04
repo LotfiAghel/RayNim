@@ -214,6 +214,10 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   if not isNil(a.shaderSet):
     a.shaderSet();
   drawModel(a.model, pos, 1.0, a.tint)
+  #drawModelWires(a.model, pos, 1.0, a.tint)
+  #[for i in 0..<a.model.meshes[0].vertexCount:
+    
+    echo "."]]#
 
 
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
