@@ -4,7 +4,7 @@ from nimraylib_now/rlgl as rl import nil
 import Node
 import std/math
 import macros
-
+import std/random
 
 
 method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
@@ -88,6 +88,7 @@ proc makeCirclePath*(r: float, n: int): seq[PathPoint] =
             normal: (cos(del), sin(del))
             )
         )
+
 proc makeRectPath*(minn, maxx: array[2, float]): seq[PathPoint] =
     return @[
         PathPoint(pos: (minn[0], minn[1]), normal: (1.0, 1.0)),
@@ -95,6 +96,11 @@ proc makeRectPath*(minn, maxx: array[2, float]): seq[PathPoint] =
         PathPoint(pos: (maxx[0], maxx[1]), normal: (-1.0, -1.0)),
         PathPoint(pos: (maxx[0], minn[1]), normal: (-1.0, 1.0)),
     ]
+
+proc addRandomToPath*(t:var seq[PathPoint],r:float)=
+    var n=t.len;
+    for i in 0..<n:
+        t[i].pos = t[i].pos + t[i].normal*((rand(2.0)-1)*r);
 
 proc makeRectMesh*(minn, maxx: array[2, float], minnText, maxxText: array[2,
         float]): Mesh =
@@ -182,19 +188,17 @@ proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq
 
 
         
-        d = 0#d+(p1-p0).length*textRatio
+        d = d+(3)*textRatio
         #vrtxH = vrtxH+cushort(r.len)*2
 
 
 
 
 
-proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],
+proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],txt:seq[float],
         textRatio: float): Mesh =
 
-    var txt:seq[float]
-    for i in 0..<r.len:
-        txt.add 1.0*i/(r.len-1)
+    
     makeMeshSpaceFromClosePath(result, path,r.len);
 
     updateMeshSpaceFromClosePath(result, path, r,txt, textRatio)

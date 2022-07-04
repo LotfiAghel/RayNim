@@ -4,6 +4,7 @@ from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
 import ../../macroTools/macroTool
+import std/random
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
@@ -73,6 +74,17 @@ type
     rProvider*: ValueProvider[float]
     lProvider*: ValueProvider[float]
     textRatio*: float
+  MeshElectirc* = ref object of AnimComp
+    time*: ValueProvider[float]
+    path*: seq[PathPoint]
+    path2*: seq[PathPoint]
+    path0*: seq[PathPoint]
+    rands:seq[float]
+    mesh*: ptr Mesh
+    radiusPoints*: seq[float]
+    txtRadiusPoints*: seq[float]
+    textRatio*: float
+
   FrameData = object
     time_end*: float
     mesh*: RenderComp
@@ -257,6 +269,37 @@ method update*(a: MeshProvider) =
   updateMeshSpaceFromClosePath(a.mesh, a.path, @[-l, r],@[0.0,1], a.textRatio)
   updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
       cfloat), 0)
+
+proc getRandomSeq*(rands:var seq[float],n:int,l,r:float)=
+  rands.setLen n;
+  for i in 0..<n :
+    rands[i]= rand(r)
+
+
+proc getRandomSeq*(rands:var seq[float],n:int,l,r:float,rate:int)=
+  rands.setLen n;
+  for i in 0..<n :
+    if(rand(rate)==1):
+      rands[i]= rand(r)
+
+method update*(a: MeshElectirc) =
+  a.time.update()
+  var t = a.time.value
+  
+  var n=a.path.len;
+  a.path0.setLen(n)
+  #if(t<0.1):
+  a.rands.getRandomSeq(n,-20,20,3)
+  for i in 0..<n:
+    a.path0[i].pos = a.path[i].pos + a.path2[i].normal*a.rands[i]#*sin(t) #*(1-t);
+    a.path0[i].normal = a.path[i].normal
+  #for i in 0..<n:
+  #  a.path[i].pos = a.path[i].pos + a.path[i].normal*((rand(2.0)-1.0)*10);
+
+  updateMeshSpaceFromClosePath(a.mesh[], a.path0, a.radiusPoints,a.txtRadiusPoints, a.textRatio)
+  updateMeshBuffer(a.mesh[], 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
+      cfloat), 0)
+      
 
 method update*(a: FrameSequence) =
   a.valueSource.update()
