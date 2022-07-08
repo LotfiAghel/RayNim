@@ -157,7 +157,13 @@ proc setPostion*(a: GNode, value: array[3,float]):GNode{.inline , discardable.} 
   result=a;
   a.position = (value[0],value[1],value[2])
 
-
+proc setPostion*(a: GNode, value: Vector2):GNode{.inline , discardable.} =
+  result=a;
+  a.position.x = value.x
+  a.position.y = value.y
+  
+proc addZ*(p:var Vector2,z:float):Vector3=
+  return Vector3(x:p.x,y:p.y,z:z)
 
 
 #AnimCompCreator(FastMoveTo, setPostion, LinearProvider)

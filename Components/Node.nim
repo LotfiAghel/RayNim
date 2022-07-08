@@ -98,6 +98,8 @@ var defaultCamera*: Camera
 
 type OnClick = proc() 
 
+
+
   
 
 
@@ -115,11 +117,31 @@ type
   Button* = ref object of GNode2D
     onClick* : OnClick
     btnRect* : BtnRect
+  Dragable* = ref object of GNode2D
+    onClick* : OnClick
+    onDragMove* : OnClick
+    onDragEnd* : OnClick
+    btnRect* : BtnRect
   BtnRect* =ref object 
     rect* : Rectangle
     btn*   : Button
+  DragArea* =ref object 
+    rect* : Rectangle
+    btn*   : GNode
+    onStart* : OnClick2
+    onMove* : OnClick2
+    onEnd* : OnClick2
   AnimComp* = ref object of RootObj
     target*: GNode
+
+  OnClick2 = proc(d:DragDataPtr) 
+  DragData* = object
+    globalStartPosition* :Vector2
+    globalCurPosition* :Vector2
+    globalEndPosition* :Vector2
+    target*: DragArea
+    
+  DragDataPtr* = ref DragData
 
 #implDefaults(GNode) 
 #createConstructor(GNode)
@@ -214,10 +236,6 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   if not isNil(a.shaderSet):
     a.shaderSet();
   drawModel(a.model, pos, 1.0, a.tint)
-  #drawModelWires(a.model, pos, 1.0, a.tint)
-  #[for i in 0..<a.model.meshes[0].vertexCount:
-    
-    echo "."]]#
 
 
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
