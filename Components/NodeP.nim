@@ -77,6 +77,11 @@ type
         normal*: Vector2
     MyVec[T, N: static[int]] = array[N, int]
 
+proc getAmud*(p:Vector2):Vector2=
+    result = Vector2(x:p.y , y: -p.x)
+    result=result.normalize()
+    return result
+
 
 proc makeCirclePath*(r: float, n: int): seq[PathPoint] =
     var pi2 = 3.1415*2
@@ -147,9 +152,12 @@ proc addVec3*(a: ptr UncheckedArray[cfloat], idx: cushort, v: Vector3) =
     a[idx*3+2] = v.z
 
 
-proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=2) =
+proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=2,isClose:bool=true) =
     res.vertexCount = path.len * rlengh
-    res.triangleCount = path.len* (rlengh-1)*2
+    if isClose:
+        res.triangleCount = path.len* (rlengh-1)*2
+    else:
+        res.triangleCount = (path.len-1)* (rlengh-1)*2
 
     res.vertices = cast[ptr UncheckedArray[cfloat]](memAlloc(res.vertexCount *
             3 * sizeof(cfloat)))
@@ -160,7 +168,7 @@ proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=
     res.indices = cast[ptr UncheckedArray[cushort]](memAlloc(res.triangleCount *
              3 * sizeof(cushort)))
 
-proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float) =
+proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float,isClose:bool=true) =
 
 
     var d = 0.float
@@ -183,8 +191,9 @@ proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq
             if i == path.len-1:
                 nxt0 = j.cushort
                 nxt1 = j.cushort+1
-            addT[3, cushort](result.indices, indicesCur, [cur, cur+1, nxt0])
-            addT[3, cushort](result.indices, indicesCur+1, [cur+1, nxt1, nxt0])
+            if i != path.len-1 or isClose:    
+                addT[3, cushort](result.indices, indicesCur, [cur, cur+1, nxt0])
+                addT[3, cushort](result.indices, indicesCur+1, [cur+1, nxt1, nxt0])
 
 
         
@@ -196,12 +205,12 @@ proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq
 
 
 proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],txt:seq[float],
-        textRatio: float): Mesh =
+        textRatio: float,isClose:bool=true): Mesh =
 
     
-    makeMeshSpaceFromClosePath(result, path,r.len);
+    makeMeshSpaceFromClosePath(result, path,r.len,isClose);
 
-    updateMeshSpaceFromClosePath(result, path, r,txt, textRatio)
+    updateMeshSpaceFromClosePath(result, path, r,txt, textRatio,isClose)
 
     uploadMesh(result.addr, false)
 
