@@ -67,6 +67,8 @@ type
     
 
   ConstProvider*[T] = ref object of ValueProvider[T]
+  CustomCall* = ref object of AnimComp
+    funct*:proc()
 
   MeshProvider* = ref object of AnimComp
     path*: seq[PathPoint]
@@ -277,6 +279,9 @@ method update*(a: MeshProvider) =
   updateMeshSpaceFromClosePath(a.mesh, a.path, @[-l, r],@[0.0,1], a.textRatio)
   updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
       cfloat), 0)
+
+method update*(a: CustomCall) =
+  a.funct()
 
 proc getRandomSeq*(rands:var seq[float],n:int,l,r:float)=
   rands.setLen n;

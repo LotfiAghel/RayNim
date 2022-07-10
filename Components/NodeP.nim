@@ -227,6 +227,10 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   drawModel(a.model, pos, 1.0, a.tint)
 
 
+
+  
+
+
 method draw*(a: LineRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   a.model.transform = gtransform

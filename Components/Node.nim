@@ -228,6 +228,14 @@ type
   MaskRenderer*{.defaults.} = ref object of D3Renderer
     content *:Texture2D 
     stencils *:Texture2D 
+
+
+  TextureCameraBuffer*{.defaults.} = ref object of D3Renderer
+    content* : GNode 
+    camera* :Camera3D
+    texture* : RenderTexture2D
+    drawEveryVisit*,dirty* :bool
+    globalScaleMatrix* :Matrix
     
 
 
