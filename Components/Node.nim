@@ -14,6 +14,10 @@ type
     name: string
     age: int
 
+when defined(emscripten) :
+  const GLSL_VERSION* = 100
+else:
+  const GLSL_VERSION* = 330
 
 implDefaults(Person)
 
@@ -220,6 +224,12 @@ type
   D3Renderer*{.defaults.} = ref object of RenderComp
     model*: Model
     shaderSet*: proc ()
+
+  MaskRenderer*{.defaults.} = ref object of D3Renderer
+    content *:Texture2D 
+    stencils *:Texture2D 
+    
+
 
   LineRenderer*{.defaults.} = ref object of D3Renderer
     path* :seq[PathPoint]

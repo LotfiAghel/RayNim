@@ -10,7 +10,7 @@ import ../Components/NodeP
 import ../Components/Node
 
 
-proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Renderer=
+proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=
     #var mesh = loadModelFromMesh(makeMesh())
     var t=scale
     t*=0.5;
@@ -19,8 +19,13 @@ proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Rend
     if flipY:
         mint[1] = 1.0
         maxt[1] = 0.0
-    var model = loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],mint,maxt))
-    #var mesh = loadModelFromMesh(makeRectMesh([0.0,0],[1.0,1.0],[0.0,0.0],[1.0,1.0]))
+    return loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],mint,maxt))
+    
+    
+    
+
+proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Renderer=
+    var model = modelRendererCreate(texture,scale,flipY)
     model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
     result = D3Renderer(model: model)
     result.tint=White
