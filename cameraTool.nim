@@ -84,8 +84,8 @@ proc myBeginMode3D( camera:Camera3D,aspect:float=2.0,CULL_DISTANCE_NEAR:float=0.
     rl.enableDepthTest();       
 
 
-template myBeginMode3D*(camera: Camera3D,aspect:float=2.0; body: untyped) =
-  myBeginMode3D(camera,aspect)
+template myBeginMode3D*(camera: Camera3D,aspect:float=2.0,CULL_DISTANCE_NEAR:float=0.01,CULL_DISTANCE_FAR:float=100000.0; body: untyped) =
+  myBeginMode3D(camera,aspect,CULL_DISTANCE_NEAR,CULL_DISTANCE_FAR)
   block:
     body
   endMode3D()

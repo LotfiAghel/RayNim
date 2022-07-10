@@ -7,8 +7,8 @@ import std/typetraits
 import constructor/constructor
 import constructor/defaults
 import macros
-import ../../macroTools/ConstructorCreator/ConstructorCreator
-import ../../macroTools/ConstructorCreator/Basic
+import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
+import ../../NimUseFullMacros/ConstructorCreator/Basic
 type
   Person{.defaults.} = object
     name: string
@@ -131,6 +131,12 @@ type
     onStart* : OnClick2
     onMove* : OnClick2
     onEnd* : OnClick2
+  DragPoint* =ref object 
+    pos* : Vector3
+    btn*   : GNode
+    onStart* : OnClick2
+    onMove* : OnClick2
+    onEnd* : OnClick2
   AnimComp* = ref object of RootObj
     target*: GNode
 
@@ -139,9 +145,10 @@ type
     globalStartPosition* :Vector2
     globalCurPosition* :Vector2
     globalEndPosition* :Vector2
-    target*: DragArea
+    target*: DragPoint
     
   DragDataPtr* = ref DragData
+  
 
 #implDefaults(GNode) 
 #createConstructor(GNode)
@@ -200,7 +207,11 @@ method draw*(a: RenderComp, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   echo "RenderComp::draw"
 
-
+type
+    PathPoint* = object
+        pos*: Vector2
+        normal*: Vector2
+    MyVec[T, N: static[int]] = array[N, int]
 
 type
   ImageRenderer* = ref object of RenderComp
@@ -209,7 +220,13 @@ type
   D3Renderer*{.defaults.} = ref object of RenderComp
     model*: Model
     shaderSet*: proc ()
-    
+
+  LineRenderer*{.defaults.} = ref object of D3Renderer
+    path* :seq[PathPoint]
+
+  IconRenderer*{.defaults.} = ref object of D3Renderer
+    discard
+
   LabelRenderer* = ref object of RenderComp
     text*: string
     font* :Font
@@ -230,12 +247,9 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
   drawTextureV(a.texture, a.position, White)
 
 
-method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
-        camera: Camera) {.inline.} =
-  a.model.transform = gtransform
-  if not isNil(a.shaderSet):
-    a.shaderSet();
-  drawModel(a.model, pos, 1.0, a.tint)
+
+
+
 
 
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,

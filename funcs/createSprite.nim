@@ -19,10 +19,10 @@ proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Rend
     if flipY:
         mint[1] = 1.0
         maxt[1] = 0.0
-    var mesh = loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],mint,maxt))
+    var model = loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],mint,maxt))
     #var mesh = loadModelFromMesh(makeRectMesh([0.0,0],[1.0,1.0],[0.0,0.0],[1.0,1.0]))
-    mesh.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
-    result = D3Renderer(model: mesh)
+    model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
+    result = D3Renderer(model: model)
     result.tint=White
 
 

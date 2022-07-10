@@ -3,7 +3,7 @@ import nimraylib_now
 from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
-import ../../macroTools/macroTool
+import ../../NimUseFullMacros/macroTool
 import std/random
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher
@@ -165,6 +165,8 @@ proc setPostion*(a: GNode, value: Vector2):GNode{.inline , discardable.} =
 proc addZ*(p:var Vector2,z:float):Vector3=
   return Vector3(x:p.x,y:p.y,z:z)
 
+proc rmZ*(p:var Vector3):Vector2=
+  return Vector2(x:p.x,y:p.y)
 
 #AnimCompCreator(FastMoveTo, setPostion, LinearProvider)
 #AnimCompCreator(FastRotateTo, setRotation, LinearProvider)

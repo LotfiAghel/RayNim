@@ -71,11 +71,7 @@ proc makeMesh*(): Mesh =
     uploadMesh(result.addr, false)
 
 
-type
-    PathPoint* = object
-        pos*: Vector2
-        normal*: Vector2
-    MyVec[T, N: static[int]] = array[N, int]
+
 
 proc getAmud*(p:Vector2):Vector2=
     result = Vector2(x:p.y , y: -p.x)
@@ -107,28 +103,33 @@ proc addRandomToPath*(t:var seq[PathPoint],r:float)=
     for i in 0..<n:
         t[i].pos = t[i].pos + t[i].normal*((rand(2.0)-1)*r);
 
-proc makeRectMesh*(minn, maxx: array[2, float], minnText, maxxText: array[2,
-        float]): Mesh =
-    allocateMeshData(result, 2)
+
+
+
+proc updateRectMesh*(mesh:Mesh,minn, maxx: array[2, float], minnText, maxxText: array[2,
+        float]) =
+    
     var verts = [minn[0], minn[1], 0, minn[0], maxx[1], 0, maxx[0], minn[1], 0,
                 maxx[0].float, maxx[1], 0, maxx[0], minn[1], 0, minn[0], maxx[1], 0
     ]
     for idx, val in verts:
-        result.vertices[idx] = val
+        mesh.vertices[idx] = val
     for idx, val in [0.cfloat, 0, 1, 0, 0, 1, 0, 0, 1]:
-        result.normals[idx] = val
+        mesh.normals[idx] = val
 
     var txts = [minnText[0], minnText[1], minnText[0], maxxText[1], maxxText[0], minnText[1],
               maxxText[0], maxxText[1], maxxText[0], minnText[1], minnText[0],
                       maxxText[1]
     ]
     for idx, val in txts:
-        result.texcoords[idx] = val
+        mesh.texcoords[idx] = val
 
+
+proc makeRectMesh*(minn, maxx: array[2, float], minnText, maxxText: array[2,
+        float]): Mesh =
+    allocateMeshData(result, 2)
+    updateRectMesh(result,minn,maxx,minnText,maxxText)
     uploadMesh(result.addr, false)
-
-
-
 
 
 
@@ -218,9 +219,59 @@ proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],txt:seq[float],
 
 
 
+method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
+        camera: Camera) {.inline.} =
+  a.model.transform = gtransform
+  if not isNil(a.shaderSet):
+    a.shaderSet();
+  drawModel(a.model, pos, 1.0, a.tint)
+
+
+method draw*(a: LineRenderer, pos: Vector3, gtransform: Matrix,
+        camera: Camera) {.inline.} =
+  a.model.transform = gtransform
+  if not isNil(a.shaderSet):
+    a.shaderSet();
+  drawModel(a.model, pos, 1.0, a.tint)
+
+proc setPath*(self:LineRenderer,path:seq[PathPoint])=
+
+    self.path=path
+    #TODO  set dirty
+
+proc setThickness*(self:LineRenderer,r:float)=
+
+    
+    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, @[-0.5*r,0.5*r],@[0.0,1],1,true)
+  
+    updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
+      cfloat), 0)
+
+proc setColor*(self:RenderComp,c:Color)=
+    self.tint=c
+    
+proc init*(self:LineRenderer,path :seq[PathPoint],r:float,texture:Texture2D):bool{. discardable .}=
+    self.path=path
+    var mesh=makeMeshFromClosePath(self.path , @[-0.5*r,0.5*r],@[0.0,1],1,true)
+    self.model= loadModelFromMesh(mesh)
+    self.model.materials[0].maps[0].texture =  texture
+    self.tint = White
+
+
+    
+    return true
 
 
 
+proc init*(self:IconRenderer,r:float,texture:Texture2D):bool{. discardable .}=
+    
+    
+    var mint=[0.0,0.0]
+    var maxt=[1.0,1.0]
+    self.model = loadModelFromMesh(makeRectMesh([-r,-r],[r,r],mint,maxt))
+    self.model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
+    
+    self.tint=White
 
-
+    return true
 
