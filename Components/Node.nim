@@ -23,14 +23,18 @@ implDefaults(Person)
 
 
 
+proc addZ*(p:var Vector2,z:float):Vector3=
+  return Vector3(x:p.x,y:p.y,z:z)
 
+proc rmZ*(p:var Vector3):Vector2=
+  return Vector2(x:p.x,y:p.y)
 
 
 
 
 type
   RenderComp*{.defaults.} = ref object of RootObj
-    position*: Vector2
+    position*: Vector3
     tint* :Color =White
     #visible*{. dfv(true) .} : bool
 
@@ -220,9 +224,11 @@ type
 type
   ImageRenderer* = ref object of RenderComp
     texture*: Texture2D
+    
 
   D3Renderer*{.defaults.} = ref object of RenderComp
     model*: Model
+    disableDepth*:bool
     shaderSet*: proc ()
 
   MaskRenderer*{.defaults.} = ref object of D3Renderer
@@ -262,7 +268,7 @@ proc myProject(matrix: Matrix, inp: Vector3): Vector2 =
 method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   echo "I am ImageRenderer"
-  drawTextureV(a.texture, a.position, White)
+  drawTextureV(a.texture, a.position.rmZ(), White)
 
 
 

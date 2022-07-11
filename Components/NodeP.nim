@@ -224,7 +224,13 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   a.model.transform = gtransform
   if not isNil(a.shaderSet):
     a.shaderSet();
+  if a.disableDepth  :
+    rl.disableDepthMask()   
+    rl.disableDepthTest()
   drawModel(a.model, pos, 1.0, a.tint)
+  if a.disableDepth  :
+    rl.enableDepthMask()
+    rl.enableDepthTest()   
 
 
 

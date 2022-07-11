@@ -164,11 +164,7 @@ proc setPostion*(a: GNode, value: Vector2):GNode{.inline , discardable.} =
   a.position.x = value.x
   a.position.y = value.y
   
-proc addZ*(p:var Vector2,z:float):Vector3=
-  return Vector3(x:p.x,y:p.y,z:z)
 
-proc rmZ*(p:var Vector3):Vector2=
-  return Vector2(x:p.x,y:p.y)
 
 #AnimCompCreator(FastMoveTo, setPostion, LinearProvider)
 #AnimCompCreator(FastRotateTo, setRotation, LinearProvider)
