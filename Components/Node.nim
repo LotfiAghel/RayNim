@@ -243,10 +243,11 @@ type
     drawEveryVisit*,dirty* :bool
     globalScaleMatrix* :Matrix
     
-
-
-  LineRenderer*{.defaults.} = ref object of D3Renderer
+  LineRenderer0*{.defaults.} = ref object of D3Renderer
     path* :seq[PathPoint]
+
+  LineRenderer*{.defaults.} = ref object of LineRenderer0
+    discard
 
   IconRenderer*{.defaults.} = ref object of D3Renderer
     discard

@@ -78,18 +78,19 @@ proc getAmud*(p:Vector2):Vector2=
     result=result.normalize()
     return result
 
-
-proc makeCirclePath*(r: float, n: int): seq[PathPoint] =
+proc updateCirclePath*(result:ptr seq[PathPoint],r: float, n: int) =
     var pi2 = 3.1415*2
-    result = @[]
     for i in 0 .. (n-1):
         var del = pi2*i/n
-        result.add(PathPoint(
-            pos: (cos(del)*r, sin(del)*r),
-            normal: (cos(del), sin(del))
-            )
-        )
+        result[i].pos= (cos(del)*r, sin(del)*r)
+        result[i].normal= (cos(del), sin(del))
 
+proc makeCirclePath*(r: float, n: int): seq[PathPoint] =
+    result = @[]
+    result.setLen n
+    updateCirclePath(result.addr,r,n)
+
+            
 proc makeRectPath*(minn, maxx: array[2, float]): seq[PathPoint] =
     return @[
         PathPoint(pos: (minn[0], minn[1]), normal: (1.0, 1.0)),
@@ -227,42 +228,21 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   if a.disableDepth  :
     rl.disableDepthMask()   
     rl.disableDepthTest()
+    beginBlendMode(BlendMode.ALPHA)
   drawModel(a.model, pos, 1.0, a.tint)
   if a.disableDepth  :
     rl.enableDepthMask()
     rl.enableDepthTest()   
+    endBlendMode()
 
 
 
   
 
 
-method draw*(a: LineRenderer, pos: Vector3, gtransform: Matrix,
-        camera: Camera) {.inline.} =
-  a.model.transform = gtransform
-  if not isNil(a.shaderSet):
-    a.shaderSet();
-  drawModel(a.model, pos, 1.0, a.tint)
-
-proc setPath*(self:LineRenderer,path:seq[PathPoint])=
-
+proc init*(self:LineRenderer0,path :seq[PathPoint],r,texR:seq[float],texture:Texture2D):bool{. discardable .}=
     self.path=path
-    #TODO  set dirty
-
-proc setThickness*(self:LineRenderer,r:float)=
-
-    
-    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, @[-0.5*r,0.5*r],@[0.0,1],1,true)
-  
-    updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
-      cfloat), 0)
-
-proc setColor*(self:RenderComp,c:Color)=
-    self.tint=c
-    
-proc init*(self:LineRenderer,path :seq[PathPoint],r:float,texture:Texture2D):bool{. discardable .}=
-    self.path=path
-    var mesh=makeMeshFromClosePath(self.path , @[-0.5*r,0.5*r],@[0.0,1],1,true)
+    var mesh=makeMeshFromClosePath(self.path , r,texR,1,true)
     self.model= loadModelFromMesh(mesh)
     self.model.materials[0].maps[0].texture =  texture
     self.tint = White
@@ -270,6 +250,47 @@ proc init*(self:LineRenderer,path :seq[PathPoint],r:float,texture:Texture2D):boo
 
     
     return true
+
+
+
+proc setPath*(self:LineRenderer0,path:seq[PathPoint])=
+
+    self.path=path
+    #TODO  set dirty
+
+proc setThicknessMesh*(self:LineRenderer0,r,texR:seq[float])=
+
+    
+    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, r,texR,1,false)
+  
+    updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
+      cfloat), 0)
+
+method draw*(a: LineRenderer0, pos: Vector3, gtransform: Matrix,
+        camera: Camera) {.inline.} =
+  a.model.transform = gtransform
+  drawModel(a.model, pos, 1.0, a.tint)
+
+proc init*(self:LineRenderer,path :seq[PathPoint],r:float,texture:Texture2D):bool{. discardable .}=
+   
+    return procCall self.LineRenderer0.init(path,@[-0.5*r,0.5*r],@[0.0,1],texture)
+
+
+    
+    
+
+proc setThickness*(self:LineRenderer,r:float)=
+
+    procCall self.LineRenderer0.setThicknessMesh( @[-0.5*r,0.5*r],@[0.0,1])
+    #updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, @[-0.5*r,0.5*r],@[0.0,1],1,true)
+  
+    #updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
+    #  cfloat), 0)
+
+proc setColor*(self:RenderComp,c:Color)=
+    self.tint=c
+    
+
 
 
 
