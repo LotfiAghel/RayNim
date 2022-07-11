@@ -179,7 +179,7 @@ proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq
 
         var vrtxH = (i*r.len).cushort
         for j in 0..<r.len:
-            var p = path[i].pos-path[i].normal*r[j]
+            var p = path[i].pos+path[i].normal*r[j]
             addT[3, cfloat](result.vertices, vrtxH+cushort(j), [p.x, p.y, 0])
             addT[3, cfloat](result.normals, vrtxH+cushort(j), [cfloat(0), 0, 1])
             addT[2, cfloat](result.texcoords, vrtxH+cushort(j), [d.cfloat, textR[j]])
