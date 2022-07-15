@@ -9,6 +9,11 @@ from os import existsFile
 import ../Components/NodeP
 import ../Components/Node
 
+proc loadTexture2*(fn:string):Texture2D=
+  result=loadTexture(fn)
+  genTextureMipmaps(result.addr)
+  setTextureFilter(result, 2)
+  echo "genTextureMipmaps--------"
 
 proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=
     #var mesh = loadModelFromMesh(makeMesh())
