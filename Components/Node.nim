@@ -113,8 +113,8 @@ type OnClick = proc()
 
 type
   GNode*  = ref object of RootObj
-    transform*: Matrix
-    position*: Vector3
+    transform*{. dfv(scale(1.0,1.0,1.0)) .} : Matrix
+    position*{. dfv((0.0,0.0,0.0)) .} : Vector3
     childs*: seq[GNode]
     parent* : GNode
     drawComps*: seq[RenderComp]
@@ -280,7 +280,7 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   var size=measureTextEx(a.font, a.text,(float)a.font.baseSize, 0.0)
-  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  0 ), (float)a.font.baseSize, 0.0, White)
+  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  0 ), (float)a.font.baseSize, 0.0, White) #a.tint
   
   #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
