@@ -375,16 +375,16 @@ p_p2.update()
 
 proc removeIterator*(z:GNode): iterator(): bool =
   return iterator (): bool  =
-    echo "go to remove"
+    yield false
     z.visible=false
     z.removeFromParent()
-    echo "come form remove"
     yield true
 
 
 
 proc hideIterator*(z:GNode): iterator(): bool =
   return iterator (): bool  =
+    yield false
     z.visible=false
     yield true
 
