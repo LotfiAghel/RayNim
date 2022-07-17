@@ -263,6 +263,7 @@ type
   LabelRenderer* = ref object of RenderComp
     text*: string
     font* :Font
+    size*{. dfv(1.0).}:float
 
 #implDefaults(D3Renderer)     
 
@@ -287,8 +288,8 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
 
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
-  var size=measureTextEx(a.font, a.text,(float)a.font.baseSize, 0.0)
-  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  0 ), (float)a.font.baseSize, 0.0, White) #a.tint
+  var size=measureTextEx(a.font, a.text,(float)a.font.baseSize*a.size, 0.0)
+  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  -size.y/2 ), (float)a.font.baseSize*a.size, 0.0, White) #a.tint
   
   #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
