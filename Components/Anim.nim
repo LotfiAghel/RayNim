@@ -413,10 +413,10 @@ echo "===================="
 proc createWithProviders*(ps:seq[iterator(): bool]):CoroutineListHandler=
   return CoroutineListHandler(providers:ps)
 
-proc addIter*(c:CoroutineListHandler,ps:iterator(): bool ):CoroutineListHandler=
+proc addIter*(c:CoroutineListHandler,ps:iterator(): bool ):CoroutineListHandler{.discardable.}=
   c.providers.add ps
   return c
 
-proc addProc*(c:CoroutineListHandler,ps:proc() ):CoroutineListHandler=
+proc addProc*(c:CoroutineListHandler,ps:proc() ):CoroutineListHandler{.discardable.}=
   c.providers.add callProc(ps)
   return c
