@@ -4,6 +4,8 @@ from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
 import ../../NimUseFullMacros/macroTool
+import ../../NimUseFullMacros/ConstructorCreator/Basic
+import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
 import std/random
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher
@@ -31,6 +33,7 @@ type
     provider*: iterator(): bool
   CoroutineListHandler* = ref object of AnimComp
     providers*: seq[iterator(): bool]
+    h*{. dfv(0).}:int
 
   MoveTo* = ref object of AnimComp
     provider*: ValueProvider[Vector3]
@@ -333,11 +336,12 @@ method update*(a: CorutineHandler) =
   #a.target.setPostion(a.provider.value)
 
 method update*(a: CoroutineListHandler) =
-  if a.providers.len<1 :
+  if a.h>=a.providers.len :
     return ;#TODO set done=true
-  var done=a.providers[0]()
+  var done=a.providers[a.h]()
   if done :
-    a.providers.del(0)
+    a.h+=1
+    #a.providers.del(0)
   #a.target.setPostion(a.provider.value)
 
 method update*(a: SetTransformTo) =
@@ -369,7 +373,34 @@ logPrint = true
 p_p.update()
 p_p2.update()
 
+proc removeIterator*(z:GNode): iterator(): bool =
+  return iterator (): bool  =
+    echo "go to remove"
+    z.visible=false
+    z.removeFromParent()
+    echo "come form remove"
+    yield true
 
+
+
+proc hideIterator*(z:GNode): iterator(): bool =
+  return iterator (): bool  =
+    z.visible=false
+    yield true
+
+proc delay*(t:float): iterator(): bool =
+  return iterator (): bool  =
+    ForLoop time,0.0,0.0,t:
+      yield false
+    yield true
+
+proc callProc*(z:proc()): iterator(): bool =
+  return iterator (): bool  =
+    yield false
+    yield false
+    yield false
+    z()
+    yield true
 
 
 echo "===================="
@@ -377,3 +408,15 @@ echo "float ", GetNumber(float)
 echo "vec3 ", GetNumber(Vector3)
 
 echo "===================="
+
+
+proc createWithProviders*(ps:seq[iterator(): bool]):CoroutineListHandler=
+  return CoroutineListHandler(providers:ps)
+
+proc addIter*(c:CoroutineListHandler,ps:iterator(): bool ):CoroutineListHandler=
+  c.providers.add ps
+  return c
+
+proc addProc*(c:CoroutineListHandler,ps:proc() ):CoroutineListHandler=
+  c.providers.add callProc(ps)
+  return c

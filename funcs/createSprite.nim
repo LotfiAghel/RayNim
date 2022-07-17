@@ -8,6 +8,7 @@ import std/strformat
 from os import existsFile
 import ../Components/NodeP
 import ../Components/Node
+import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
 
 proc loadTexture2*(fn:string):Texture2D=
   result=loadTexture(fn)
@@ -40,7 +41,7 @@ proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Rend
 
 proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
     
-    result=newGNode(
+    result=GNode.Create(
                   position= (0.0,0.0, 0.0),
                   transform= scale(1.0, 1.0, 1.0),
                   drawComps= @[

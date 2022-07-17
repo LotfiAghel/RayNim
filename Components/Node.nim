@@ -116,7 +116,7 @@ type
     transform*{. dfv(scale(1.0,1.0,1.0)) .} : Matrix
     position*{. dfv((0.0,0.0,0.0)) .} : Vector3
     childs*: seq[GNode]
-    parent* : GNode
+    parent*{. dfv(nil) .} : GNode
     drawComps*: seq[RenderComp]
     onUpdate*: seq[AnimComp]
     visible*{. dfv(true) .}: bool
@@ -147,6 +147,8 @@ type
     onEnd* : OnClick2
   AnimComp* = ref object of RootObj
     target*: GNode
+  AnimCompTimed* = ref object of AnimComp
+    discard
 
   OnClick2 = proc(d:DragDataPtr) 
   DragData* = object
@@ -171,15 +173,21 @@ type
 
 method removeFromParent*(a:GNode){.base.}=
   try:
+    if a.parent.isNil:
+      return;
     var z=a.parent.childs.find(a)
     echo z,"/",a.parent.childs.len
+    
     a.parent.childs.delete(z)
-    discard
   except:
     echo "aaa"
 
 method update*(a: AnimComp){.base.} =
   echo "AnimComp.update"
+
+
+method update*(a: AnimCompTimed) =
+  echo "AnimCompTimed.update"
 
 method clone*(a: AnimComp): AnimComp =
   echo "nothing"
@@ -285,3 +293,15 @@ method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
   #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
 
+template ForLoop*(time:untyped,l:float,r:float,dtTime:float,body:untyped)=
+  block:
+    var time=l
+    
+    var n:int=int(dtTime*60)
+    for i in 0..n :
+        body
+        #yield 0
+        time += (r-l)/n
+
+    time=r;
+    body
