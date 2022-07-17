@@ -58,7 +58,7 @@ method update*(a: MeshElectirc) =
   a.vel.getRandomSeq2(a.position,n,1,a.left,a.right)
   for i in 0..<n:
     a.position[i] += a.vel[i]
-    a.path0[i].pos = a.path[i].pos + a.path0[i].normal*a.position[i]#*sin(t) #*(1-t);
+    a.path0[i].pos = a.path[i].pos + a.path[i].normal*a.position[i]#*sin(t) #*(1-t);
     a.path0[i].normal = a.path[i].normal
     
   #for i in 0..<n:

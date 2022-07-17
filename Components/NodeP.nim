@@ -90,6 +90,18 @@ proc makeCirclePath*(r: float, n: int): seq[PathPoint] =
     result.setLen n
     updateCirclePath(result.addr,r,n)
 
+
+proc updateLinePath*(result:ptr seq[PathPoint],path:seq[Vector2], n: int) =
+    var z=path[1]-path[0]
+    for i in 0 .. (n-1):
+        var del = i.float/(n-1)
+        result[i].pos= path[0]+z*del
+        result[i].normal= z.getAmud()
+
+proc makeLinePath*(path:seq[Vector2], n: int): seq[PathPoint] =
+    result = @[]
+    result.setLen n
+    updateLinePath(result.addr,path,n)
             
 proc makeRectPath*(minn, maxx: array[2, float]): seq[PathPoint] =
     return @[
@@ -240,9 +252,9 @@ method draw*(a: D3Renderer, pos: Vector3, gtransform: Matrix,
   
 
 
-proc init*(self:LineRenderer0,path :seq[PathPoint],r,texR:seq[float],texture:Texture2D):bool{. discardable .}=
+proc init*(self:LineRenderer0,path :seq[PathPoint],r,texR:seq[float],texture:Texture2D,isClose=true):bool{. discardable .}=
     self.path=path
-    var mesh=makeMeshFromClosePath(self.path , r,texR,1,true)
+    var mesh=makeMeshFromClosePath(self.path , r,texR,1,isClose)
     self.model= loadModelFromMesh(mesh)
     self.model.materials[0].maps[0].texture =  texture
     self.tint = White
