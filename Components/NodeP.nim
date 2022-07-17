@@ -182,7 +182,9 @@ proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=
     res.indices = cast[ptr UncheckedArray[cushort]](memAlloc(res.triangleCount *
              3 * sizeof(cushort)))
 
-proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float,isClose:bool=true) =
+
+
+proc updateMeshPointFromPath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float) =
 
 
     var d = 0.float
@@ -196,6 +198,20 @@ proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq
             addT[3, cfloat](result.normals, vrtxH+cushort(j), [cfloat(0), 0, 1])
             addT[2, cfloat](result.texcoords, vrtxH+cushort(j), [d.cfloat, textR[j]])
 
+       
+        d = d+(3)*textRatio
+        #vrtxH = vrtxH+cushort(r.len)*2
+
+
+
+
+proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float,isClose:bool=true) =
+
+    updateMeshPointFromPath(result,path,r,textR,textRatio)
+    var d = 0.float
+    for i in 0..<path.len:
+        var vrtxH = (i*r.len).cushort
+      
         for j in 0..<r.len-1:
             var
                 indicesCur = vrtxH+(j*2).cushort

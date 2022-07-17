@@ -64,7 +64,7 @@ method update*(a: MeshElectirc) =
   #for i in 0..<n:
   #  a.path[i].pos = a.path[i].pos + a.path[i].normal*((rand(2.0)-1.0)*10);
 
-  updateMeshSpaceFromClosePath(a.mesh[], a.path0, a.radiusPoints,a.txtRadiusPoints, a.textRatio)
+  updateMeshPointFromPath(a.mesh[], a.path0, a.radiusPoints,a.txtRadiusPoints, a.textRatio)
   updateMeshBuffer(a.mesh[], 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
       cfloat), 0)
       
