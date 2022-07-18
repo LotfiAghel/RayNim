@@ -68,6 +68,9 @@ type
     endPosition*: T
     start*: T
     
+  ProceduralProvider*[T] = ref object of ValueProvider[T]
+    time*: ValueProvider[float]
+    procedure*: proc(t:float):T
 
   ConstProvider*[T] = ref object of ValueProvider[T]
   CustomCall* = ref object of AnimComp
