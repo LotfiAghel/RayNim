@@ -244,8 +244,23 @@ template declUpdate(T: type) =
     GetNumber(T) = GetNumber(T) + 1
 
 
+
 declUpdate(float)
+declUpdate(Vector2)
 declUpdate(Vector3)
+
+
+
+template declProceduralProviderUpdate(T: type) =
+  method update*(a: ProceduralProvider[T]) =
+    a.time.update()
+    a.value=a.procedure(a.time.value);
+
+
+declProceduralProviderUpdate(float)
+declProceduralProviderUpdate(Vector2)
+declProceduralProviderUpdate(Vector3)
+
 
 SetNumber(Color)
 method update*(a: LinearProvider[Color]) =
