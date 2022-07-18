@@ -8,7 +8,7 @@ import std/strformat
 from os import existsFile
 import ../Components/NodeP
 import ../Components/Node
-import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
+import NimUseFullMacros/ConstructorCreator/ConstructorCreator
 
 proc loadTexture2*(fn:string):Texture2D=
   result=loadTexture(fn)

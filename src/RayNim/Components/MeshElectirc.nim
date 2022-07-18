@@ -3,7 +3,7 @@ import nimraylib_now
 from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
-import ../../NimUseFullMacros/macroTool
+import NimUseFullMacros/macroTool
 import std/random
 
 import Anim

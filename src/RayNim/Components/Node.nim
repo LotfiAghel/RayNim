@@ -7,8 +7,8 @@ import std/typetraits
 import constructor/constructor
 import constructor/defaults
 import macros
-import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
-import ../../NimUseFullMacros/ConstructorCreator/Basic
+import NimUseFullMacros/ConstructorCreator/ConstructorCreator
+import NimUseFullMacros/ConstructorCreator/Basic
 type
   Person{.defaults.} = object
     name: string

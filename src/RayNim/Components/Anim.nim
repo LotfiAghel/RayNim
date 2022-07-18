@@ -3,9 +3,9 @@ import nimraylib_now
 from nimraylib_now/rlgl as rl import nil
 import Node
 import NodeP
-import ../../NimUseFullMacros/macroTool
-import ../../NimUseFullMacros/ConstructorCreator/Basic
-import ../../NimUseFullMacros/ConstructorCreator/ConstructorCreator
+import NimUseFullMacros/macroTool
+import NimUseFullMacros/ConstructorCreator/Basic
+import NimUseFullMacros/ConstructorCreator/ConstructorCreator
 import std/random
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher

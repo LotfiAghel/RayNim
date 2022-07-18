@@ -10,7 +10,8 @@ backend             = "c"
 requires "nim >= 0.20.2"
 
 requires  "nimraylib_now"
-requires "https://github.com/LotfiAghel/NimUseFullMacros.git"
+requires "NimUseFullMacros"
+#requires "https://github.com/LotfiAghel/NimUseFullMacros.git"
 
 
 from os import `/`, parentDir
