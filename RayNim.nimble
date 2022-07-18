@@ -7,14 +7,13 @@ license       = "MIT"
 srcDir = "src"
 backend             = "c"
 
-requires "nim >= 0.20.2"
-
+requires "nim >= 1.4.2" 
 requires  "nimraylib_now"
 requires "NimUseFullMacros"
-#requires "https://github.com/LotfiAghel/NimUseFullMacros.git"
 
 
 from os import `/`, parentDir
+
 
 task hello, "This is a hello task":
   echo("Hello World!")
