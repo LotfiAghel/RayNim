@@ -76,6 +76,10 @@ type
   CustomCall* = ref object of AnimComp
     funct*:proc()
 
+  CustomCall2* = ref object of AnimComp
+    time*: ValueProvider[float]
+    funct*:proc(t:float)
+
   MeshProvider* = ref object of AnimComp
     path*: seq[PathPoint]
     mesh*: Mesh
@@ -294,6 +298,13 @@ method update*(a: MeshProvider) =
 
 method update*(a: CustomCall) =
   a.funct()
+
+
+method update*(a: CustomCall2) =
+  a.time.update()
+  a.funct(a.time.value)
+
+
 
 proc getRandomSeq*(rands:var seq[float],n:int,l,r:float)=
   rands.setLen n;

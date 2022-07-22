@@ -9,11 +9,20 @@ from os import existsFile
 import ../Components/NodeP
 import ../Components/Node
 import NimUseFullMacros/ConstructorCreator/ConstructorCreator
+from nimraylib_now/rlgl as rl import nil
+import system
+
+proc isTwoPow(i:int):bool=
+    return not bool(i and (i-1) )
 
 proc loadTexture2*(fn:string):Texture2D=
   result=loadTexture(fn)
   genTextureMipmaps(result.addr)
   setTextureFilter(result, 2)
+  if result.width.isTwoPow and result.height.isTwoPow:
+    rl.textureParameters(result.id, rl.TEXTURE_WRAP_S, rl.TEXTURE_WRAP_REPEAT);
+    rl.textureParameters(result.id, rl.TEXTURE_WRAP_T, rl.TEXTURE_WRAP_REPEAT);
+  #rl.setTextureWrap()
   echo "genTextureMipmaps--------"
 
 proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=

@@ -188,9 +188,11 @@ proc updateMeshPointFromPath*(result: var Mesh, path: seq[PathPoint], r:seq[floa
 
 
     var d = 0.float
+    var prv=path[0].pos
     for i in 0..<path.len:
 
-
+        var z=(prv-path[i].pos).length
+        prv=path[i].pos
         var vrtxH = (i*r.len).cushort
         for j in 0..<r.len:
             var p = path[i].pos+path[i].normal*r[j]
@@ -199,12 +201,12 @@ proc updateMeshPointFromPath*(result: var Mesh, path: seq[PathPoint], r:seq[floa
             addT[2, cfloat](result.texcoords, vrtxH+cushort(j), [d.cfloat, textR[j]])
 
        
-        d = d+(3)*textRatio
+        d = d+textRatio*z
         #vrtxH = vrtxH+cushort(r.len)*2
 
 
 
-proc updateMeshSpaceFromClosePath*(result: var Mesh, pathLen: int, rLen:int,isClose:bool=true) =
+proc updateMeshFacesFromClosePath*(result: var Mesh, pathLen: int, rLen:int,isClose:bool=true) =
 
 
 
@@ -242,7 +244,7 @@ proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],txt:seq[float],
 
     updateMeshPointFromPath(result,path,r,txt,textRatio)
 
-    updateMeshSpaceFromClosePath(result, path.len, r.len,isClose)
+    updateMeshFacesFromClosePath(result, path.len, r.len,isClose)
 
     uploadMesh(result.addr, false)
 
@@ -291,7 +293,7 @@ proc setPath*(self:LineRenderer0,path:seq[PathPoint])=
 proc setThicknessMesh*(self:LineRenderer0,r,texR:seq[float])=
 
     
-    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path.len, r.len,false)
+    updateMeshFacesFromClosePath(self.model.meshes[0], self.path.len, r.len,false)
   
     updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
       cfloat), 0)
@@ -312,7 +314,7 @@ proc init*(self:LineRenderer,path :seq[PathPoint],r:float,texture:Texture2D):boo
 proc setThickness*(self:LineRenderer,r:float)=
 
     procCall self.LineRenderer0.setThicknessMesh( @[-0.5*r,0.5*r],@[0.0,1])
-    #updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, @[-0.5*r,0.5*r],@[0.0,1],1,true)
+    #updateMeshFacesFromClosePath(self.model.meshes[0], self.path, @[-0.5*r,0.5*r],@[0.0,1],1,true)
   
     #updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
     #  cfloat), 0)
