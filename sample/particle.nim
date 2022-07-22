@@ -57,40 +57,26 @@ var emptyWhite*:Texture2D
 var clickListener* :seq[DragPoint]
 
 
-    
+var line:LineRendererR2=LineRendererR2()
+var line0=LineRenderer0()
 
-var line:PartNode
 
-
-for i in 0..10:
+for i in 0..1:
   line.path.add PathPoint(
       pos:(i.float,0.0),
       normal: (0.0,1.0)
     )
-  line.time.add i.float
+  line.reduce.add i.float
 
 
 
-proc makeMeshFromClosePath22*(result:var Mesh,path: PartNode,r:seq[float],txt:seq[float],
-        textRatio: float,isClose:bool=true) =
 
-    
-    makeMeshSpaceFromClosePath(result, path.path.len ,txt.len,isClose);
-
-    updateMeshPointFromPath2(result,path,r,txt,textRatio)
-
-    updateMeshSpaceFromClosePath(result, path.path.len, txt.len,isClose)
-    
-    uploadMesh(result.addr, false)
 
 var mesh:Mesh=Mesh()
 var self=D3Renderer()
-makeMeshFromClosePath22(mesh,line,@[-1.0,1.0],@[0.0,1.0],1.0,false)
-self.model = loadModelFromMesh(mesh)
 
-#self.model= loadModelFromMesh(mesh)
-self.model.materials[0].maps[0].texture =  circle
-self.tint = White
+#line0.init(line.path,@[-1.0,1.0],@[0.0,1.0],emptyWhite,true)
+line.init2(line.path,line.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,emptyWhite,true)
 
 
 
@@ -192,6 +178,8 @@ proc initAssets()=
     )
   )
   backGroundNode.addChild spriteNodeCreate(circle,0.1).setPostion((100.0,0.0,0.0))
+  backGroundNode.drawComps.add line
+  backGroundNode.drawComps.add line0
   
   #[
     scale(sin(globalTime.value*20)*(10,10,10))
