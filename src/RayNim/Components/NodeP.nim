@@ -148,7 +148,7 @@ proc makeRectMesh*(minn, maxx: array[2, float], minnText, maxxText: array[2,
 
 
 
-proc addT[N: static[int], T](a: ptr UncheckedArray[T], idx: cushort, v: array[N, T]) =
+proc addT*[N: static[int], T](a: ptr UncheckedArray[T], idx: cushort, v: array[N, T]) =
     a[idx * N + 0] = v[0]
     for i in 0..N-1:
         a[idx*N + i.cushort] = v[i]
@@ -166,12 +166,12 @@ proc addVec3*(a: ptr UncheckedArray[cfloat], idx: cushort, v: Vector3) =
     a[idx*3+2] = v.z
 
 
-proc makeMeshSpaceFromClosePath*(res: var Mesh, path: seq[PathPoint],rlengh:int=2,isClose:bool=true) =
-    res.vertexCount = path.len * rlengh
+proc makeMeshSpaceFromClosePath*(res: var Mesh, pathLen:int,rlengh:int=2,isClose:bool=true) =
+    res.vertexCount = pathLen * rlengh
     if isClose:
-        res.triangleCount = path.len* (rlengh-1)*2
+        res.triangleCount = pathLen * (rlengh-1)*2
     else:
-        res.triangleCount = (path.len-1)* (rlengh-1)*2
+        res.triangleCount = (pathLen-1) * (rlengh-1)*2
 
     res.vertices = cast[ptr UncheckedArray[cfloat]](memAlloc(res.vertexCount *
             3 * sizeof(cfloat)))
@@ -204,31 +204,31 @@ proc updateMeshPointFromPath*(result: var Mesh, path: seq[PathPoint], r:seq[floa
 
 
 
+proc updateMeshSpaceFromClosePath*(result: var Mesh, pathLen: int, rLen:int,isClose:bool=true) =
 
-proc updateMeshSpaceFromClosePath*(result: var Mesh, path: seq[PathPoint], r:seq[float],textR:seq[float], textRatio: float,isClose:bool=true) =
 
-    updateMeshPointFromPath(result,path,r,textR,textRatio)
-    var d = 0.float
-    for i in 0..<path.len:
-        var vrtxH = (i*r.len).cushort
+
+    for i in 0..<pathLen:
+        var vrtxH = (i*rLen).cushort
       
-        for j in 0..<r.len-1:
+        for j in 0..<rLen-1:
             var
                 indicesCur = vrtxH+(j*2).cushort
                 cur  = vrtxH+(j).cushort
-                nxt0 = vrtxH+cushort(j+r.len)
-                nxt1 = vrtxH+cushort(j+r.len+1)
-            if i == path.len-1:
+                nxt0 = vrtxH+cushort(j+rLen)
+                nxt1 = vrtxH+cushort(j+rLen+1)
+            if i == pathLen-1:
                 nxt0 = j.cushort
                 nxt1 = j.cushort+1
-            if i != path.len-1 or isClose:    
+            if i != pathLen-1 or isClose:    
                 addT[3, cushort](result.indices, indicesCur, [cur, cur+1, nxt0])
                 addT[3, cushort](result.indices, indicesCur+1, [cur+1, nxt1, nxt0])
 
 
         
-        d = d+(3)*textRatio
+
         #vrtxH = vrtxH+cushort(r.len)*2
+
 
 
 
@@ -238,9 +238,11 @@ proc makeMeshFromClosePath*(path: seq[PathPoint],  r:seq[float],txt:seq[float],
         textRatio: float,isClose:bool=true): Mesh =
 
     
-    makeMeshSpaceFromClosePath(result, path,r.len,isClose);
+    makeMeshSpaceFromClosePath(result, path.len,r.len,isClose);
 
-    updateMeshSpaceFromClosePath(result, path, r,txt, textRatio,isClose)
+    updateMeshPointFromPath(result,path,r,txt,textRatio)
+
+    updateMeshSpaceFromClosePath(result, path.len, r.len,isClose)
 
     uploadMesh(result.addr, false)
 
@@ -289,7 +291,7 @@ proc setPath*(self:LineRenderer0,path:seq[PathPoint])=
 proc setThicknessMesh*(self:LineRenderer0,r,texR:seq[float])=
 
     
-    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path, r,texR,1,false)
+    updateMeshSpaceFromClosePath(self.model.meshes[0], self.path.len, r.len,false)
   
     updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
       cfloat), 0)

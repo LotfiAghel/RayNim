@@ -288,7 +288,7 @@ method update*(a: MeshProvider) =
   a.rProvider.update()
   var r = abs(a.rProvider.value)
   var l = abs(a.lProvider.value)
-  updateMeshSpaceFromClosePath(a.mesh, a.path, @[-l, r],@[0.0,1], a.textRatio)
+  updateMeshPointFromPath(a.mesh, a.path, @[-l, r],@[0.0,1], a.textRatio)
   updateMeshBuffer(a.mesh, 0, a.mesh.vertices, a.mesh.vertexCount * 3*sizeof(
       cfloat), 0)
 
@@ -438,3 +438,8 @@ proc addIter*(c:CoroutineListHandler,ps:iterator(): bool ):CoroutineListHandler{
 proc addProc*(c:CoroutineListHandler,ps:proc() ):CoroutineListHandler{.discardable.}=
   c.providers.add callProc(ps)
   return c
+
+
+
+proc startFromNow*(t:ValueProvider[float]):TimeShift=
+  return TimeShift(shiftValue:t.value,valueSource:t)
