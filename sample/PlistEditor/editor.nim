@@ -167,6 +167,12 @@ when false:
 proc toJson*(t:ptr cfloat):JsonNode =
   return JsonNode(kind:JFloat,fnum:t[].float)
 
+proc fromJson*(T:typedesc[cfloat];t:ptr cfloat,js:JsonNode) =
+  t[]=js.fnum.cfloat
+
+proc fromJson*(t:ptr cfloat,js:JsonNode) =
+  t[]=js.fnum.cfloat
+
 defineToAllP(MR)
 defineToAllP(Rectangle2)
 
@@ -318,9 +324,13 @@ proc initAssets()=
                   ]).setPostion((0.0,0.0,0.0))
 
   #z.tint=Blue
-  echo toJson(plist.addr)
+  var plist2:Plist
+  var s=toJson(plist.addr)
+  fromJson(plist2.addr,s)
+  echo toJson(plist2.addr)
+  #quit()
   anim=PlistAnimation(
-    plist:plist,
+    plist:plist2,
     frameStep:0.1,
     mesh:z.model.meshes[0].addr
   )
