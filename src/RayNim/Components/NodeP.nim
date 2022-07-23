@@ -8,7 +8,7 @@ import std/random
 
 
 method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
-        camera: Camera) {.inline.} =
+        camera: Camera) {.base.} =
     if a.visible==false:
         return;
     var newT = gtransform * a.transform
@@ -21,12 +21,12 @@ method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
         c.visit(newP, newT, camera)
 
 method visit*(a: Button, pos: Vector3, gtransform: Matrix,
-        camera: Camera) {.inline.} =
+        camera: Camera)  =
     procCall a.GNode.visit(pos,gtransform,camera);
     #a.btnRect
     
     
-method update*(a: GNode) {.inline.} =
+method update*(a: GNode) {.base.} =
     if a.visible==false:
         return;
     for c in a.onUpdate:
@@ -75,6 +75,11 @@ proc makeMesh*(): Mesh =
 
 proc getAmud*(p:Vector2):Vector2=
     result = Vector2(x:p.y , y: -p.x)
+    result=result.normalize()
+    return result
+
+proc getRAmud*(p:Vector2):Vector2=
+    result = Vector2(x: -p.y , y: p.x)
     result=result.normalize()
     return result
 
@@ -338,3 +343,26 @@ proc init*(self:IconRenderer,r:float,texture:Texture2D):bool{. discardable .}=
 
     return true
 
+
+
+proc getPathPoints*(a:seq[Vector2]):seq[PathPoint]=
+  
+  for i in 0..<a.len:
+    var left=Vector2()
+    
+    if i!=0 :
+       left=a[i]-a[i-1]
+    else:
+       left=a[i+1]-a[i]
+
+    var right=Vector2()
+
+    if i != a.len-1:
+       right=a[i+1]-a[i]
+    else:
+       right=a[i]-a[i-1]
+
+    result.add PathPoint(
+      pos: a[i] ,
+      normal: left.normalize.getRAmud #(left.getAmud+right.getAmud).normalize  
+    )

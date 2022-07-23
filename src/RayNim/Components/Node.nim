@@ -266,7 +266,8 @@ type
     size*{. dfv(1.0).}:float
 
 #implDefaults(D3Renderer)     
-
+proc setTexture*(self:D3Renderer,texture:Texture2D):D3Renderer {. discardable.}=
+  self.model.materials[0].maps[0].texture =  texture
 
 proc myProject(matrix: Matrix, inp: Vector3): Vector2 =
   #matrix.transform()
@@ -306,3 +307,21 @@ template ForLoop*(time:untyped,l:float,r:float,dtTime:float,body:untyped)=
 
     time=r;
     body
+
+
+
+template ForLoop11*(index:untyped,list:seq[typed],body:untyped)=
+  block:
+    var index=0
+    
+    var n:int=int(dtTime*60)
+    for i in 0..n :
+        body
+        #yield 0
+        time += (r-l)/n
+
+    time=r;
+    body
+
+
+

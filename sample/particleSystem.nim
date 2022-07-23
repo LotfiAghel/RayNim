@@ -8,9 +8,9 @@ import std/strformat
 from os import existsFile
 import asyncdispatch
 import std/tables
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import NimUseFullMacros/ConstructorCreator/ConstructorCreator
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import RayNim/Components/[Node, NodeP, Anim, MaskView, MeshElectirc]
 import RayNim/CameraTool
 
@@ -41,9 +41,18 @@ type
   LineRendererR2* = ref object of LineRenderer0
     reduce*: seq[float]  
     mesh* : Mesh
+
+  FlameMovement* = ref object of GNode
+    lineRender*:LineRendererR2
+    reduce0*: seq[float]  
+    reduce1*: seq[float]  
+
+
+
+
 proc checkMesh*(mesh: ptr Mesh) =
     echo "hi"
-proc init2*(self:LineRendererR2,path :seq[PathPoint],reduce,r,txt:seq[float],textRatio:float,texture:Texture2D,isClose=true):bool{. discardable .}=
+proc init2*(self:LineRendererR2,path :seq[PathPoint],reduce,r,txt:seq[float],textRatio:float,isClose=true):bool{. discardable .}=
     self.path=path
     self.reduce=reduce
     
@@ -59,8 +68,26 @@ proc init2*(self:LineRendererR2,path :seq[PathPoint],reduce,r,txt:seq[float],tex
 
     self.model= loadModelFromMesh(self.mesh)
     
-    self.model.materials[0].maps[0].texture =  texture
+    #self.model.materials[0].maps[0].texture =  texture
     self.tint = White
     return true
 
 
+proc update*(a: FlameMovement)  =
+    for i in 0..< a.reduce0.len:
+        a.reduce0[i] += 0.01
+        if a.reduce0[i]<0:
+            a.lineRender.reduce[i]=0
+        elif a.reduce0[i]>3.14:
+            a.lineRender.reduce[i]=1
+        else:
+            var t=sin(a.reduce0[i])
+            t*=t
+            t*=t
+            t*=t
+            a.lineRender.reduce[i]= t*20*a.reduce1[i]
+    #a.lineRender.init2(a.lineRender.path,a.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,false)
+
+    updateMeshPointFromPath2(a.lineRender.mesh,a.lineRender.path,a.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0)
+    updateMeshBuffer(a.lineRender.model.meshes[0], 0, a.lineRender.model.meshes[0].vertices, a.lineRender.model.meshes[0].vertexCount * 3*sizeof(
+      cfloat), 0)

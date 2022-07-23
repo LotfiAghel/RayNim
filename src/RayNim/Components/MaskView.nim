@@ -5,7 +5,7 @@ import Node
 import std/math
 import macros
 import std/random
-import ../funcs/createSprite
+import ../funcs/SpriteFunctions
 import NodeP
 
 #[method draw*(a: TextureCameraBuffer, pos: Vector3, gtransform: Matrix,

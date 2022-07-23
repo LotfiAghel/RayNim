@@ -450,7 +450,13 @@ proc addProc*(c:CoroutineListHandler,ps:proc() ):CoroutineListHandler{.discardab
   c.providers.add callProc(ps)
   return c
 
-
+var globalTime* = new TimeProvider
+globalTime.value=0;
 
 proc startFromNow*(t:ValueProvider[float]):TimeShift=
   return TimeShift(shiftValue:t.value,valueSource:t)
+
+proc startFromNow*():TimeShift=
+  return TimeShift(shiftValue:globalTime.value,valueSource:globalTime)
+
+

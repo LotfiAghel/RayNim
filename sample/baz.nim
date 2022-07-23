@@ -8,9 +8,9 @@ import std/strformat
 from os import existsFile
 import asyncdispatch
 import std/tables
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import NimUseFullMacros/ConstructorCreator/ConstructorCreator
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import RayNim/Components/[Node, NodeP, Anim, MaskView, MeshElectirc]
 
 
@@ -34,12 +34,8 @@ proc getPath(a: seq[SplinePoint], part: int): seq[Vector2] =
    var t = j.float/part
    result.add getPt(a[i-1].pos, a[i-1].pos+a[i-1].speed[1], a[i].pos+a[i].speed[0], a[i].pos, t)
 
-proc getPathPoints(a:seq[Vector2]):seq[PathPoint]=
-  #TODO this compliantly wrong
-  for i in 0..<(a.len-1):
-    result.add PathPoint(
-      pos: a[i] ,
-      normal: (a[i].getAmud+a[i+1].getAmud).normalize
-    )
 
+  
+  
+  
 

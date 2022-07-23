@@ -1,6 +1,6 @@
 import RayNim/Components
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import RayNim/CameraTool
 export Components
-export createSprite
+export SpriteFunctions
 export CameraTool

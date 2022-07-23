@@ -8,9 +8,9 @@ import std/strformat
 from os import existsFile
 import asyncdispatch
 import std/tables
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import NimUseFullMacros/ConstructorCreator/ConstructorCreator
-import RayNim/funcs/createSprite
+import RayNim/funcs/SpriteFunctions
 import RayNim/Components/[Node, NodeP, Anim, MaskView, MeshElectirc]
 import RayNim/CameraTool
 
@@ -39,8 +39,7 @@ globalScreenPos = Vector3(x: 0,y: 0,z:0.0) ;
 
 
 
-var globalTime* = new TimeProvider
-globalTime.value=0;
+
 
 
 
@@ -57,16 +56,32 @@ var emptyWhite*:Texture2D
 var clickListener* :seq[DragPoint]
 
 
-var line:LineRendererR2=LineRendererR2()
-var line0=LineRenderer0()
+var line =FlameMovement.Create()
+line.lineRender=LineRendererR2.Create()
+
+var pp:seq[Vector2]
+when false:
+  for i in 0..200:
+    pp.add (i*5.0,sin(i*0.1)*100)
+
+    line.lineRender.reduce.add sin(i*0.05)*5+10
+    line.reduce0.add -i*0.05
+    line.reduce1.add (sin(i*0.5)*sin(i*0.5)+1)
+
+for i in 0..200:
+  var t=(1-i.float/200)
+  t*=t
+  t=1-t
+  pp.add (cos(i*0.1)*100*t,sin(i*0.1)*100*t)
+
+  line.lineRender.reduce.add sin(i*0.05)*5+10
+  line.reduce0.add -i*0.05
+  line.reduce1.add (sin(i*0.5)*sin(i*0.5)+1)
 
 
-for i in 0..1:
-  line.path.add PathPoint(
-      pos:(i.float,0.0),
-      normal: (0.0,1.0)
-    )
-  line.reduce.add i.float
+line.lineRender.path=getPathPoints(pp)
+
+
 
 
 
@@ -75,8 +90,7 @@ for i in 0..1:
 var mesh:Mesh=Mesh()
 var self=D3Renderer()
 
-#line0.init(line.path,@[-1.0,1.0],@[0.0,1.0],emptyWhite,true)
-line.init2(line.path,line.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,emptyWhite,true)
+
 
 
 
@@ -153,33 +167,34 @@ proc initAssets()=
   
 
   backGroundNode = spriteNodeCreate(circle).setPostion((0.0,0.0,0.0))
-  backGroundNode.addOnUpdate(SetTransformTo.Create(   
-    scaleProvider=LinearProvider[Vector3](  # sin(globalTime*(2.0-0.0)+0.0)*( [ 3.0,3.0,3.0]-[0.0,0.0,0.0])+[0.0,0.0,0.0]
-      time: SinEfect(valueSource:LinearProvider[float](
-        time:globalTime,
-        start: 0.0,
-        endPosition: 2.0
-      )),
-      start: (0.0,0.0,0.0),
-      endPosition: (3.0,3.0,3.0)
-    ),
-    rotateProvider: LinearProvider[Vector3](
-      time: globalTime,
-      start: (0.0,0.0,0.0),
-      endPosition: (0.0,0.0,3.0)
-    )
-  )).addOnUpdate(
-    MoveTo(
-      provider:ProceduralProvider[Vector3](
-        time: globalTime,
-        procedure:proc(t:float):Vector3=
-          return Vector3(x:sin(t)*100*2,y:sin(4*t)*100,z:0.0)
-      )
-    )
-  )
+ 
   backGroundNode.addChild spriteNodeCreate(circle,0.1).setPostion((100.0,0.0,0.0))
-  backGroundNode.drawComps.add line
+
+
+  var line0 = LineRenderer()
+  var pp:seq[Vector2]
+  pp= @[Vector2(x:0.0,y:0.0),(100.0,100.0)]
+  var am=(pp[0]-pp[1]).getAmud()
+
+  var path:seq[PathPoint]= @[PathPoint(pos:pp[0],normal:am),
+                            PathPoint(pos:pp[1],normal:am)]
+
+  line0.init(path,1.0,emptyWhite)
+  line0.setColor(White)
+
+  line.lineRender.init2(line.lineRender.path,line.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,false)
+  line.lineRender.setTexture(emptyWhite)
+  backGroundNode.addChild line
   backGroundNode.drawComps.add line0
+  line.drawComps.add line.lineRender
+  line.update()
+  line.addOnUpdate CustomCall2(
+    time:globalTime,
+    funct:proc(t:float)=
+      echo "hiiiiiiiiiiiiiiiiii"
+      line.update()
+  )
+  line.lineRender.init2(line.lineRender.path,line.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,false)
   
   #[
     scale(sin(globalTime.value*20)*(10,10,10))
