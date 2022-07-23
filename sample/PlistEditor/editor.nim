@@ -46,7 +46,7 @@ globalScreenPos = Vector3(x: 0,y: 0,z:0.0) ;
 
 
 
-      
+
 
 
 
@@ -124,6 +124,15 @@ var inited=false
 
 
 type 
+  Rectangle2* {.bycopy.} = object
+    x* {.importc: "x".}: cfloat  ##  NmrlbNow_Rectangle top-left corner position x
+    y* {.importc: "y".}: cfloat  ##  NmrlbNow_Rectangle top-left corner position y
+    width* {.importc: "width".}: cfloat ##  NmrlbNow_Rectangle width
+    height* {.importc: "height".}: cfloat ##  NmrlbNow_Rectangle height
+
+  MR{.bycopy.}=object
+    x*:cfloat
+
   PlistPart* = object
     name*:string
     img*:Image
@@ -131,6 +140,7 @@ type
 
   PlistNode* = object
     name*:string
+    mr*:Rectangle2
     rect*:Rectangle
     dstRect*:Rectangle  # distanation in animation
 
@@ -144,43 +154,25 @@ type
     plist*:Plist
     frameStep*:float 
     mesh*:ptr Mesh
-
 when false:
-  proc toJson[T](self :ref T):JsonNode =
-    discard
-  proc toJson[cfloat](self :ref cfloat):JsonNode =
-    result = JsonNode(kind:JFloat,fnum:cfloat.float)
 
-  proc toJson[Rectangle](self :ref Rectangle):JsonNode =
-    result =JsonNode(kind:JObject)
-    result.add("x", toJson(self.x))
-    result.add("y", toJson(self.y))
-    result.add("heigth", toJson(self.heigth))
-    result.add("heigth", toJson(self.heigth))
+  var a   = Plist(rects: @[PlistNode(name:"aa",rect:Rectangle(x:11),mr:Rectangle2(x:25))])
 
-  proc toJson[PlistNode](self :ref PlistNode):JsonNode =
-    result =JsonNode(kind:JObject)
-    result.add("rect", toJson(self.rect))
-    result.add("dstRect", toJson(self.rect))
+  var b=a
+  echo a
+  echo b
 
-  proc toJson[T](self :ref seq[T]):JsonNode =
-    result =JsonNode(kind:JArray)
-    for i in self:
-      result.add(toJson[T](i))
-    
+  echo "--"
 
+proc toJson*(t:ptr cfloat):JsonNode =
+  return JsonNode(kind:JFloat,fnum:t[].float)
 
-  proc toJson(self :ref Plist):JsonNode =
-    result =JsonNode(kind:JObject)
-    result.add("fn", JsonNode(kind:JString,str:self.fn))
-    result.add("rects", JsonNode(kind:JString,str:self.fn))
+defineToAllP(MR)
+defineToAllP(Rectangle2)
 
-proc toJson*(t:cfloat):JsonNode =
-  return JsonNode(kind:JFloat,fnum:t.float)
-
-defineToAll(Rectangle)
-defineToAll(PlistNode)
-defineToAll(Plist)
+defineToAllP(Rectangle)
+defineToAllP(PlistNode)
+defineToAllP(Plist)
 
 
 proc getX2(r: Rectangle):float=
@@ -326,7 +318,7 @@ proc initAssets()=
                   ]).setPostion((0.0,0.0,0.0))
 
   #z.tint=Blue
-  echo toJson(plist)
+  echo toJson(plist.addr)
   anim=PlistAnimation(
     plist:plist,
     frameStep:0.1,
