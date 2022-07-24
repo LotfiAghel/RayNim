@@ -19,7 +19,8 @@ import std/strutils
 import std/json
 import serialization/object_serialization
 import NSrilizer/Srilizer
-
+import RayNim/Components/SpriteSheet
+import RayNim/Basics/Geometry
 var designResolution* = Vector2(x:1980.0,y:1080)
 var screenWidth* = int(designResolution.x*0.9)
 var screenHeight* = int(designResolution.y*0.9)
@@ -102,58 +103,9 @@ var first:bool=true
 
 
 
-proc `/=`(a:var cfloat,n: cint): cfloat{.discardable.}  =
-  a = a / n
-  return a
-
-
-proc `/=`(rect:var Rectangle,v: Vector2): Rectangle{.discardable.}  =
-  rect.x/=v.x
-  rect.y/=v.y
-  rect.width/=v.x
-  rect.height/=v.y
-  result=rect
-
-
-proc `-=`(rect:var Rectangle,v: Vector2): Rectangle{.discardable.}  =
-  rect.x-=v.x
-  rect.y-=v.y
-  result=rect
-
 var inited=false
 
 
-type 
-  Rectangle2* {.bycopy.} = object
-    x* {.importc: "x".}: cfloat  ##  NmrlbNow_Rectangle top-left corner position x
-    y* {.importc: "y".}: cfloat  ##  NmrlbNow_Rectangle top-left corner position y
-    width* {.importc: "width".}: cfloat ##  NmrlbNow_Rectangle width
-    height* {.importc: "height".}: cfloat ##  NmrlbNow_Rectangle height
-
-  MR{.bycopy.}=object
-    x*:cfloat
-
-  PlistPart* = object
-    name*:string
-    img*:Image
-    dstRect*:Rectangle
-
-  PlistNode* = object
-    name*:string
-    mr*:Rectangle2
-    rect*:Rectangle
-    dstRect*:Rectangle  # distanation in animation
-
-  Plist* = object
-    fn*:string
-    img*{.dontSerialize.}:Image
-    rect*:Rectangle
-    rects*:seq[PlistNode]
-
-  PlistAnimation* = ref object of AnimComp
-    plist*:Plist
-    frameStep*:float 
-    mesh*:ptr Mesh
 when false:
 
   var a   = Plist(rects: @[PlistNode(name:"aa",rect:Rectangle(x:11),mr:Rectangle2(x:25))])
@@ -163,101 +115,6 @@ when false:
   echo b
 
   echo "--"
-
-proc toJson*(t:ptr cfloat):JsonNode =
-  return JsonNode(kind:JFloat,fnum:t[].float)
-
-proc fromJson*(T:typedesc[cfloat];t:ptr cfloat,js:JsonNode) =
-  t[]=js.fnum.cfloat
-
-proc fromJson*(t:ptr cfloat,js:JsonNode) =
-  t[]=js.fnum.cfloat
-
-defineToAllP(MR)
-defineToAllP(Rectangle2)
-
-defineToAllP(Rectangle)
-defineToAllP(PlistNode)
-defineToAllP(Plist)
-
-
-proc getX2(r: Rectangle):float=
-  return r.x+r.width
-
-proc getY2(r: Rectangle):float=
-  return r.y+r.height
-
-method update*(self: PlistAnimation) =
-  var t=globalTime.value
-  var i=(t*10).int mod self.plist.rects.len
-  echo self.plist.rects[i]
-  var rect=self.plist.rects[i]
-  self.mesh[].updateRectMesh(
-    [rect.dstRect.x.float ,rect.dstRect.y],[rect.dstRect.getX2(),rect.dstRect.getY2()],
-    # [-100.0,-100.0],[100.0,100.0],
-    [rect.rect.x.float,rect.rect.y],[rect.rect.getX2(),rect.rect.getY2()]
-    )
-  #[self.mesh[].updateRectMesh(
-    [-100.0,-100.0],[100.0,100.0],
-    [0.0,0.0],[1.0,1.0]
-    )]#
-  updateMeshBuffer(self.mesh[], 0, self.mesh.vertices, self.mesh.vertexCount * 3*sizeof(
-  cfloat), 0)
-  updateMeshBuffer(self.mesh[], 1, self.mesh.texcoords, self.mesh.vertexCount * 2*sizeof(
-  cfloat), 0)
-  
-
-
-proc trimImg(img:ptr Image)=
-  var rect= getImageAlphaBorder(img[],0.1)
-  imageCrop(img,rect)
-
-proc getRect(img:ptr Image):Rectangle=
-  result =  Rectangle(x:0.0,y:0.0,
-          width:img.width.cfloat,
-          height:img.height.cfloat)
-  
-proc createPlist(imgs:seq[PlistPart]):Plist=
-  var
-    h=0
-    w=0
-
-  for i in 0..<imgs.len:
-    var img=imgs[i]
-    echo i ,"w >",img.img.width
-    if w < img.img.width:
-      w = img.img.width
-    h+=img.img.height
-  echo w,h
-  result.img = genImageColor(w,h,(0,0,0,0))
-  #result.img.addr.
-
-  var ih=0
-  for img in imgs:
-    var dstRect=Rectangle(
-          x:0,
-          y:ih.cfloat,
-          width:img.img.width.cfloat,
-          height:img.img.height.cfloat
-        )
-    result.rects.add PlistNode(
-        name:img.name,
-        rect:dstRect,
-        dstRect:img.dstRect
-      )
-    ih+=img.img.height
-    
-
-  block  optimizeRects:
-    discard
-
-  for i in 0..<result.rects.len:
-    #discar exportImage(imgs[i].img,fmt"/home/lotfi/programing/nim/RayNim/r/{i}.png")
-    result.img.addr.imageDraw(imgs[i].img,imgs[i].img.addr.getRect(),result.rects[i].rect,White)
-    result.rects[i].rect /= Vector2(x:w.cfloat,y:h.cfloat)
-    echo result.rects[i].rect
-    
-
 
 var plist:Plist
 var anim:PlistAnimation
@@ -326,6 +183,7 @@ proc initAssets()=
   #z.tint=Blue
   var plist2:Plist
   var s=toJson(plist.addr)
+  writeFile("/home/lotfi/programing/nim/RayNim/r/a.json",$(s))
   fromJson(plist2.addr,s)
   echo toJson(plist2.addr)
   #quit()
