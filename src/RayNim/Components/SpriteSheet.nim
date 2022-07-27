@@ -9,7 +9,7 @@ from os import existsFile
 import asyncdispatch
 import std/tables
 import RayNim/funcs/SpriteFunctions
-import NimUseFullMacros/ConstructorCreator/ConstructorCreator
+import NimUseFullMacros/ConstructorCreator/[ConstructorCreator,Basic]
 import RayNim/funcs/SpriteFunctions
 import RayNim/Components/[Node, NodeP, Anim, MaskView, MeshElectirc]
 import RayNim/CameraTool
@@ -41,13 +41,16 @@ type
   Plist* = object
     fn*:string
     img*{.dontSerialize.}:Image
+    texture*{.dontSerialize.}:Texture2D
     rect*:Rectangle
     rects*:seq[PlistNode]
 
+
   PlistAnimation* = ref object of AnimComp
-    plist*:Plist
+    plist*:ptr Plist
     frameStep*:float 
     mesh*:ptr Mesh
+    isClose*{. dfv(false) .}:bool 
 
 
 
@@ -63,7 +66,7 @@ defineToAllP(Plist)
 
 method update*(self: PlistAnimation) =
   var t=globalTime.value
-  var i=(t*10).int mod self.plist.rects.len
+  var i=(t/self.frameStep).int mod self.plist.rects.len
   echo self.plist.rects[i]
   var rect=self.plist.rects[i]
   self.mesh[].updateRectMesh(
@@ -123,10 +126,17 @@ proc createPlist*(imgs:seq[PlistPart]):Plist=
     discard
 
   for i in 0..<result.rects.len:
-    #discar exportImage(imgs[i].img,fmt"/home/lotfi/programing/nim/RayNim/r/{i}.png")
     result.img.addr.imageDraw(imgs[i].img,imgs[i].img.addr.getRect(),result.rects[i].rect,White)
     result.rects[i].rect /= Vector2(x:w.cfloat,y:h.cfloat)
     echo result.rects[i].rect
     
 
 
+
+proc readFromFile*(plist:var Plist,fn:string)=
+  let f = open(fn)
+  defer: f.close()
+  let s = parseJson(f.readLine())
+
+  
+  fromJson(plist.addr,s)

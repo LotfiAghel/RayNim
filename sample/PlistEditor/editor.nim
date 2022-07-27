@@ -117,6 +117,7 @@ when false:
   echo "--"
 
 var plist:Plist
+var plist2:Plist
 var anim:PlistAnimation
 proc initAssets()=
   
@@ -132,8 +133,10 @@ proc initAssets()=
   for i in 0..<58:
     var s=intToStr(i,5)
     var part=PlistPart()
+    #resources/seq/5 _ 1Win/5 _ 1Win_{s}.png
     part.name=s
-    var tmp=loadImage(fmt"resources/seq/5 _ 1Win/5 _ 1Win_{s}.png")
+    
+    var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/Shine Card/Shine Card_{s}.png")
     #tmp.addr.imageResizeNN(int(tmp.width/2),int(tmp.height/2))
     part.img=tmp
     
@@ -158,6 +161,7 @@ proc initAssets()=
     echo s
     echo part.img.width , " <> ",part.img.height
     winImgs.add part
+    discard exportImage(part.img,fmt"/home/lotfi/programing/nim/RayNim/r/{i}.png")
       
 
   plist=createPlist(winImgs) 
@@ -181,22 +185,19 @@ proc initAssets()=
                   ]).setPostion((0.0,0.0,0.0))
 
   #z.tint=Blue
-  var plist2:Plist
+  
   var s=toJson(plist.addr)
   writeFile("/home/lotfi/programing/nim/RayNim/r/a.json",$(s))
   fromJson(plist2.addr,s)
   echo toJson(plist2.addr)
   #quit()
   anim=PlistAnimation(
-    plist:plist2,
+    plist:plist2.addr,
     frameStep:0.1,
     mesh:z.model.meshes[0].addr
   )
-  for i in 0..<plist.rects.len:
-    anim.plist.rects[i].rect=plist.rects[i].rect
-    anim.plist.rects[i].dstRect=plist.rects[i].dstRect
   echo plist
-  echo anim.plist
+  #echo anim.plist
   backGroundNode.addOnUpdate anim
   #backGroundNode.addChild spriteNodeCreate(circle,0.1).setPostion((100.0,0.0,0.0))
 

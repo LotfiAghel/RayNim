@@ -269,6 +269,9 @@ type
 proc setTexture*(self:D3Renderer,texture:Texture2D):D3Renderer {. discardable.}=
   self.model.materials[0].maps[0].texture =  texture
 
+proc getMesh*(self:D3Renderer):ptr Mesh {. discardable.}=
+  return self.model.meshes[0].addr
+
 proc myProject(matrix: Matrix, inp: Vector3): Vector2 =
   #matrix.transform()
   var output = inp.transform(matrix)
