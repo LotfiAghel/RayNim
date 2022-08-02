@@ -96,6 +96,8 @@ type
     startTime*: float
     activeMeshIdx*: int
     frames*: seq[FrameData]
+  SeqAnimation* = ref object of AnimComp
+    anims*:seq[AnimComp] 
 
 
 var p_p: ValueProvider[float] = LinearProvider[float](time: ConstProvider[float](value: 0), endPosition: 0.0,
@@ -297,7 +299,9 @@ method update*(a: MeshProvider) =
       cfloat), 0)
 
 method update*(a: CustomCall) =
-  a.funct()
+  if not a.finished :
+    a.funct()
+  a.finished=true
 
 
 method update*(a: CustomCall2) =
@@ -454,9 +458,18 @@ var globalTime* = new TimeProvider
 globalTime.value=0;
 
 proc startFromNow*(t:ValueProvider[float]):TimeShift=
-  return TimeShift(shiftValue:t.value,valueSource:t)
+  return TimeShift(shiftValue: - t.value,valueSource:t)
 
 proc startFromNow*():TimeShift=
-  return TimeShift(shiftValue:globalTime.value,valueSource:globalTime)
+  return TimeShift(shiftValue: -globalTime.value,valueSource:globalTime)
 
 
+
+method update*(self: SeqAnimation) =
+  self.anims.removeFinished()
+  if self.anims.len<1:
+    self.finished = true
+    return;
+  self.anims[0].target=self.target
+  self.anims[0].update()
+  

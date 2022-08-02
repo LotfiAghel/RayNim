@@ -21,7 +21,10 @@ else:
 
 implDefaults(Person)
 
-
+proc removeVal*[T](self:var seq[T],item:T){.inline.}=
+  var t=self.find(item)
+  if t > -1:
+    self.del t
 
 proc addZ*(p:var Vector2,z:float):Vector3=
   return Vector3(x:p.x,y:p.y,z:z)
@@ -36,7 +39,7 @@ type
   RenderComp*{.defaults.} = ref object of RootObj
     position*: Vector3
     tint* :Color =White
-    #visible*{. dfv(true) .} : bool
+    visible*{. dfv(true) .} : bool
 
 
 
@@ -59,7 +62,7 @@ proc someProcThatMayRunInCompileTime(): bool =
     # This branch is taken in the executable.
     result = false
 
-getBodySAve(RenderComp)
+#getBodySAve(RenderComp)
 
 #[proc MyNew_RenderComp(visible:bool=true):RenderComp=
   return RenderComp(visible:visible)]#
@@ -147,6 +150,7 @@ type
     onEnd* : OnClick2
   AnimComp* = ref object of RootObj
     target*: GNode
+    finished*{. dfv(false) .}:bool
   AnimCompTimed* = ref object of AnimComp
     discard
 

@@ -47,11 +47,14 @@ type
 
 
   PlistAnimation* = ref object of AnimComp
+    time*{. dfv(startFromNow()) .}: ValueProvider[float]
     plist*:ptr Plist
     frameStep*:float 
-    mesh*:ptr Mesh
+    drawCom*:D3Renderer
+    #mesh*:ptr Mesh
     isClose*{. dfv(false) .}:bool 
-
+  PlistAnimationRomver* =  ref object of PlistAnimation
+    parent*:GNode
 
 
 
@@ -65,25 +68,35 @@ defineToAllP(Plist)
 
 
 method update*(self: PlistAnimation) =
-  var t=globalTime.value
-  var i=(t/self.frameStep).int mod self.plist.rects.len
+  self.time.update()
+  var t=self.time.value
+  var i=(t/self.frameStep).int 
+  if not self.isClose and i>=self.plist.rects.len :
+    self.finished=true
+    i=self.plist.rects.len-1
+  i=i mod self.plist.rects.len    
   echo self.plist.rects[i]
   var rect=self.plist.rects[i]
-  self.mesh[].updateRectMesh(
+  var mesh=self.drawCom.getMesh
+  mesh[].updateRectMesh(
     [rect.dstRect.x.float ,rect.dstRect.y],[rect.dstRect.getX2(),rect.dstRect.getY2()],
     # [-100.0,-100.0],[100.0,100.0],
     [rect.rect.x.float,rect.rect.y],[rect.rect.getX2(),rect.rect.getY2()]
     )
-  #[self.mesh[].updateRectMesh(
+  #[mesh[].updateRectMesh(
     [-100.0,-100.0],[100.0,100.0],
     [0.0,0.0],[1.0,1.0]
     )]#
-  updateMeshBuffer(self.mesh[], 0, self.mesh.vertices, self.mesh.vertexCount * 3*sizeof(
+  updateMeshBuffer(mesh[], 0, mesh.vertices, mesh.vertexCount * 3*sizeof(
   cfloat), 0)
-  updateMeshBuffer(self.mesh[], 1, self.mesh.texcoords, self.mesh.vertexCount * 2*sizeof(
+  updateMeshBuffer(mesh[], 1, mesh.texcoords, mesh.vertexCount * 2*sizeof(
   cfloat), 0)
   
-
+method update*(self: PlistAnimationRomver) =
+  procCall self.PlistAnimation.update()
+  if self.finished:
+    self.parent.drawComps.removeVal(self.drawCom)
+    
 
 #[proc trimImg(img:ptr Image)=
   var rect= getImageAlphaBorder(img[],0.1)

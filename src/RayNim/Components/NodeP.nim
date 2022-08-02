@@ -15,7 +15,8 @@ method visit*(a: GNode, pos: Vector3, gtransform: Matrix,
     var newP = pos+a.position.transform(gtransform)
 
     for c in a.drawComps:
-        c.draw(newP, newT, camera)
+        if c.visible :
+            c.draw(newP, newT, camera)
 
     for c in a.childs:
         c.visit(newP, newT, camera)
@@ -25,12 +26,25 @@ method visit*(a: Button, pos: Vector3, gtransform: Matrix,
     procCall a.GNode.visit(pos,gtransform,camera);
     #a.btnRect
     
-    
+proc removeFinished*(a:var seq[AnimComp]){. inline .}=
+    var k=0
+    for i in 0..<a.len:
+        if not a[i].finished:
+            if k!=i:
+                a[k]=a[i]
+            k+=1
+    a.setLen(k)
+        
+
+
 method update*(a: GNode) {.base.} =
     if a.visible==false:
         return;
     for c in a.onUpdate:
         c.update()
+
+    a.onUpdate.removeFinished()
+            
 
     for c in a.childs:
         c.update()
