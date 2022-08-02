@@ -11,6 +11,7 @@ import ../Components/Node
 import NimUseFullMacros/ConstructorCreator/ConstructorCreator
 from nimraylib_now/rlgl as rl import nil
 import system
+import asyncdispatch
 
 proc isTwoPow(i:int):bool=
     return not bool(i and (i-1) )
@@ -24,6 +25,18 @@ proc loadTexture2*(fn:string):Texture2D=
     rl.textureParameters(result.id, rl.TEXTURE_WRAP_T, rl.TEXTURE_WRAP_REPEAT);
   #rl.setTextureWrap()
   echo "genTextureMipmaps--------"
+
+
+proc loadTextureAsync*(fn:string):Future[Texture2D] {.async.}=
+  result=loadTexture(fn)
+  genTextureMipmaps(result.addr)
+  setTextureFilter(result, 2)
+  if result.width.isTwoPow and result.height.isTwoPow:
+    rl.textureParameters(result.id, rl.TEXTURE_WRAP_S, rl.TEXTURE_WRAP_REPEAT);
+    rl.textureParameters(result.id, rl.TEXTURE_WRAP_T, rl.TEXTURE_WRAP_REPEAT);
+  #rl.setTextureWrap()
+  echo "genTextureMipmaps--------"
+  #return   Future[Texture2D](result)
 
 proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=
     #var mesh = loadModelFromMesh(makeMesh())

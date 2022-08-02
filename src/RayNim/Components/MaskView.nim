@@ -7,6 +7,7 @@ import macros
 import std/random
 import ../funcs/SpriteFunctions
 import NodeP
+import Anim
 
 #[method draw*(a: TextureCameraBuffer, pos: Vector3, gtransform: Matrix,
   camera: Camera) {.inline.} =
@@ -32,20 +33,22 @@ proc initBuffer*(a: TextureCameraBuffer, cW, cH: int) =
   a.model = modelRendererCreate(a.texture.texture, 1.0,false) 
   a.model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = a.texture.texture
 
-proc init*(self: MaskRenderer, content: Texture2D, stencils: Texture2D) =
+proc init0*(self: MaskRenderer, content: Texture2D, stencils: Texture2D,shader:Shader) =
   self.content = content
   self.stencils = stencils
   echo "---------load mesh------------"
 
 
   var tmp = modelRendererCreate(self.content, 1.0,
-      true) # spriteNodeCreate(mask.texture,1.0,true)
+      false) # spriteNodeCreate(mask.texture,1.0,true)
 
             #var target = loadRenderTexture(self.cW , self.cH)
             #var mask = loadRenderTexture(self.cW, self.cH)
-
-  var mask_shader = loadShader(nil, textFormat(
-      "resources/shaders/glsl%i/mask2.fs", GLSL_VERSION))
+  tmp.materials[0].maps[MaterialMapIndex.Albedo.int].texture = content # MATERIAL_MAP_DIFFUSE is now ALBEDO
+  self.tint=White
+  self.model=tmp
+  
+  self.maskSahder = shader
 
   tmp.materials[0].maps[0].texture = self.content # MATERIAL_MAP_DIFFUSE is now ALBEDO
   tmp.materials[0].maps[1].texture = self.stencils;
@@ -55,16 +58,41 @@ proc init*(self: MaskRenderer, content: Texture2D, stencils: Texture2D) =
   echo MaterialMapIndex.Albedo.int
   echo MaterialMapIndex.EMISSION.int
 
-  echo mask_shader.getShaderLocation("texture1")
-  echo mask_shader.getShaderLocation("texture0")
-  mask_shader.locs[0] = mask_shader.getShaderLocation("texture0");
-  mask_shader.locs[1] = mask_shader.getShaderLocation("texture1");
+  echo self.maskSahder.getShaderLocation("texture1")
+  echo self.maskSahder.getShaderLocation("texture0")
+  self.maskSahder.locs[0] = self.maskSahder.getShaderLocation("texture0");
+  self.maskSahder.locs[1] = self.maskSahder.getShaderLocation("texture1");
 
 
-  tmp.materials[0].shader = mask_shader;
+  tmp.materials[0].shader = self.maskSahder;
 
 
   self.model = tmp
   #tmp2.position = calcFigmaPostion(nil,mask.texture,(0.0,0.0,-10.1),1.0)
 
+proc init*(self: MaskRenderer, content: Texture2D, stencils: Texture2D) =
+  self.init0( content,stencils,loadShader(nil, textFormat(
+      "resources/shaders/glsl%i/mask2.fs", GLSL_VERSION)))
+  
 
+
+
+proc init*(self: MaskRenderer2, content: Texture2D, stencils: Texture2D,maskSahder:Shader) =
+
+  procCall self.MaskRenderer.init0(content,stencils,maskSahder)
+  
+  self.fogDensityLoc = getShaderLocation(maskSahder, "fogDensity")
+  self.threshold=0.9
+  setShaderValue(maskSahder, self.fogDensityLoc, addr(self.threshold), Float)
+
+type
+  SetThreshold* = ref object of AnimComp
+    valueProvider*: ValueProvider[float]
+    renderer*:MaskRenderer2
+
+
+
+method update(a :SetThreshold)=
+  a.valueProvider.update()
+  a.renderer.MaskRenderer2.threshold=a.valueProvider.value
+  setShaderValue(a.renderer.maskSahder, a.renderer.fogDensityLoc, addr(a.renderer.threshold), Float)

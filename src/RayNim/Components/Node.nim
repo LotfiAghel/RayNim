@@ -242,7 +242,13 @@ type
   MaskRenderer*{.defaults.} = ref object of D3Renderer
     content *:Texture2D 
     stencils *:Texture2D 
+    maskSahder* :Shader
+  
 
+  MaskRenderer2*{.defaults.} = ref object of MaskRenderer
+    fogDensityLoc* : cint
+    threshold*: cfloat
+    
 
   TextureCameraBuffer*{.defaults.} = ref object of D3Renderer
     content* : GNode 
