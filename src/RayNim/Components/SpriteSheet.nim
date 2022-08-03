@@ -138,7 +138,7 @@ proc createPlist*(imgs:seq[PlistPart]):Plist=
     discard
 
   for i in 0..<result.rects.len:
-    result.img.addr.imageDraw(imgs[i].img,imgs[i].img.addr.getRect(),result.rects[i].rect,White)
+    result.img.unsafeAddr.imageDraw(imgs[i].img,imgs[i].img.unsafeAddr.getRect(),result.rects[i].rect,White)
     result.rects[i].rect /= Vector2(x:w.cfloat,y:h.cfloat)
     
     

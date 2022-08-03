@@ -40,14 +40,14 @@ proc removeFinished*(a:var seq[AnimComp]){. inline .}=
 method update*(a: GNode) {.base.} =
     if a.visible==false:
         return;
-    for c in a.onUpdate:
-        c.update()
+    for idx in 0..<a.onUpdate.len:
+        a.onUpdate[idx].update()
 
     a.onUpdate.removeFinished()
             
 
-    for c in a.childs:
-        c.update()
+    for idx in 0..<a.childs.len:
+        a.childs[idx].update()
 
 
 
