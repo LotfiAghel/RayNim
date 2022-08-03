@@ -64,9 +64,7 @@ when false:
   for i in 0..200:
     pp.add (i*5.0,sin(i*0.1)*100)
 
-    line.lineRender.reduce.add sin(i*0.05)*5+10
-    line.reduce0.add -i*0.05
-    line.reduce1.add (sin(i*0.5)*sin(i*0.5)+1)
+
 
 for i in 0..200:
   var t=(1-i.float/200)
@@ -74,12 +72,10 @@ for i in 0..200:
   t=1-t
   pp.add (cos(i*0.1)*100*t,sin(i*0.1)*100*t)
 
-  line.lineRender.reduce.add sin(i*0.05)*5+10
-  line.reduce0.add -i*0.05
-  line.reduce1.add (sin(i*0.5)*sin(i*0.5)+1)
 
 
-line.lineRender.path=getPathPoints(pp)
+
+
 
 
 
@@ -144,6 +140,8 @@ import std/tables
 
 
 
+var 
+    time=0.0
 
 
 var inited=false
@@ -171,30 +169,33 @@ proc initAssets()=
   backGroundNode.addChild spriteNodeCreate(circle,0.1).setPostion((100.0,0.0,0.0))
 
 
-  var line0 = LineRenderer()
-  var pp:seq[Vector2]
-  pp= @[Vector2(x:0.0,y:0.0),(100.0,100.0)]
-  var am=(pp[0]-pp[1]).getAmud()
+  var line0 = LineRenderer.Create()
+  var pp0:seq[Vector2]
+  pp0= @[Vector2(x:0.0,y:0.0),(100.0,100.0)]
+  var am=(pp0[0]-pp0[1]).getAmud()
 
-  var path:seq[PathPoint]= @[PathPoint(pos:pp[0],normal:am),
-                            PathPoint(pos:pp[1],normal:am)]
+  var path:seq[PathPoint]= @[PathPoint(pos:pp0[0],normal:am),
+                            PathPoint(pos:pp0[1],normal:am)]
 
   line0.init(path,1.0,emptyWhite)
   line0.setColor(White)
 
-  line.lineRender.init2(line.lineRender.path,line.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,false)
+  line.lineRender.init2(pp.len,2,1.0,false)
   line.lineRender.setTexture(emptyWhite)
   backGroundNode.addChild line
   backGroundNode.drawComps.add line0
   line.drawComps.add line.lineRender
   line.update()
-  line.addOnUpdate CustomCall2(
-    time:globalTime,
-    funct:proc(t:float)=
-      echo "hiiiiiiiiiiiiiiiiii"
-      line.update()
+  #var valueSource=LinearProvider[float].Create(endPosition=0.1,start=0.0)
+  line.addOnUpdate GridMeshAnimator.Create(
+    line=line.lineRender,
+    path=getPathPoints(pp),
+    reduce2=ReduceProvider2.Create(
+      valueSource=LinearProvider[float].Create(endPosition=1.0,start=0.0)
+      #valueSource=LinearProvider(endPosition:0.1,start:0.0)
+    )
   )
-  line.lineRender.init2(line.lineRender.path,line.lineRender.reduce,@[-1.0,1.0],@[0.0,1.0],1.0,false)
+  #line.lineRender.init2(line.lineRender.path,@[-1.0,1.0],@[0.0,1.0],1.0,false)
   
   #[
     scale(sin(globalTime.value*20)*(10,10,10))

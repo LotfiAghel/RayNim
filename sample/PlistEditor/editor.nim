@@ -136,7 +136,10 @@ proc initAssets()=
     #resources/seq/5 _ 1Win/5 _ 1Win_{s}.png
     part.name=s
     
-    var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/Shine Card/Shine Card_{s}.png")
+    #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/Shine Card/Shine Card_{s}.png")
+    #var tmp=loadImage(fmt"resources/seq/5 _ 1Win/5 _ 1Win_{s}.png")
+    var tmp=loadImage(fmt"resources/seq/Shine Card/Shine Card_{s}.png")
+    
     #tmp.addr.imageResizeNN(int(tmp.width/2),int(tmp.height/2))
     part.img=tmp
     
@@ -155,6 +158,8 @@ proc initAssets()=
     #part.dstRect.width/=part.img.width
     #part.dstRect.height/=part.img.height
     var pos=Vector2(x:part.img.width*0.5,y:part.img.height*0.5)
+    #shien card
+    pos = (722.0,336.0)
     part.img.addr.imageCrop(part.dstRect)
     part.dstRect -= pos
     
@@ -187,7 +192,7 @@ proc initAssets()=
   #z.tint=Blue
   
   var s=toJson(plist.addr)
-  writeFile("/home/lotfi/programing/nim/RayNim/r/a.json",$(s))
+  writeFile("/home/lotfi/programing/nim/RayNim/all.json",$(s))
   fromJson(plist2.addr,s)
   echo toJson(plist2.addr)
   #quit()

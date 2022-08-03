@@ -47,37 +47,40 @@ type
     
 
   TimeProvider* = ref object of ValueProvider[float]
-  TimeRange* = ref object of ValueProvider[float]
+
+  ProviderConvertor*[TIN,TOUT] = ref object of ValueProvider[TOUT]
+    valueSource* {.dfv(startFromNow()).}: ValueProvider[TIN]
+
+  TimeRange* = ref object of ProviderConvertor[float,float]
     zeroPoint*: float
     endPoint*: float
-    valueSource*: ValueProvider[float]
-  TimeShift* = ref object of ValueProvider[float]
+
+  TimeShift* = ref object of ProviderConvertor[float,float]
     shiftValue*: float
-    valueSource*: ValueProvider[float]
-  SinEfect* = ref object of ValueProvider[float]
-    valueSource*: ValueProvider[float]
-  SinEfect2* = ref object of ValueProvider[float]
-    valueSource*: ValueProvider[float]
+
+  SinEfect* = ref object of ProviderConvertor[float,float]
+
+  SinEfect2* = ref object of ProviderConvertor[float,float]
     innerMult*: float
     outerMult*: float
     outerPlus*: float
 
 
-  LinearProvider*[T] = ref object of ValueProvider[T]
-    time*: ValueProvider[float]
+  LinearProvider*[T] = ref object of ProviderConvertor[float,T]
     endPosition*: T
     start*: T
     
-  ProceduralProvider*[T] = ref object of ValueProvider[T]
-    time*: ValueProvider[float]
+  ProceduralProvider*[T] = ref object of ProviderConvertor[float,T]
     procedure*: proc(t:float):T
 
   ConstProvider*[T] = ref object of ValueProvider[T]
   CustomCall* = ref object of AnimComp
     funct*:proc()
 
-  CustomCall2* = ref object of AnimComp
-    time*: ValueProvider[float]
+  AnimCompFloatSource* = ref object of AnimComp
+     time*{. dfv(startFromNow()) .}: ValueProvider[float]
+
+  CustomCall2* = ref object of AnimCompFloatSource
     funct*:proc(t:float)
 
   MeshProvider* = ref object of AnimComp
@@ -91,8 +94,7 @@ type
   FrameData = object
     time_end*: float
     mesh*: RenderComp
-  FrameSequence* = ref object of AnimComp
-    valueSource*: ValueProvider[float]
+  FrameSequence* = ref object of AnimCompFloatSource
     startTime*: float
     activeMeshIdx*: int
     frames*: seq[FrameData]
@@ -100,9 +102,9 @@ type
     anims*:seq[AnimComp] 
 
 
-var p_p: ValueProvider[float] = LinearProvider[float](time: ConstProvider[float](value: 0), endPosition: 0.0,
+var p_p: ValueProvider[float] = LinearProvider[float](valueSource: ConstProvider[float](value: 0), endPosition: 0.0,
       start: 0.0)
-var p_p2: ValueProvider[Vector3] = LinearProvider[Vector3](time: ConstProvider[float](value: 0), endPosition: (0.0, 0.0, PI/2),
+var p_p2: ValueProvider[Vector3] = LinearProvider[Vector3](valueSource: ConstProvider[float](value: 0), endPosition: (0.0, 0.0, PI/2),
       start: (0.0, 0.0, 0.0))
 
 
@@ -244,8 +246,8 @@ method update*(a: LinearProvider[float]) =
 template declUpdate(T: type) =
   SetNumber(T)
   method update*(a: LinearProvider[T]) =
-    a.time.update()
-    var tt = a.time.value;
+    a.valueSource.update()
+    var tt = a.valueSource.value;
     a.value = a.start * (1-tt) + a.endPosition * tt
     GetNumber(T) = GetNumber(T) + 1
 
@@ -259,8 +261,8 @@ declUpdate(Vector3)
 
 template declProceduralProviderUpdate(T: type) =
   method update*(a: ProceduralProvider[T]) =
-    a.time.update()
-    a.value=a.procedure(a.time.value);
+    a.valueSource.update()
+    a.value=a.procedure(a.valueSource.value);
 
 
 declProceduralProviderUpdate(float)
@@ -270,8 +272,8 @@ declProceduralProviderUpdate(Vector3)
 
 SetNumber(Color)
 method update*(a: LinearProvider[Color]) =
-  a.time.update()
-  var tt = a.time.value;
+  a.valueSource.update()
+  var tt = a.valueSource.value;
   a.value.r = uint8(a.start.r * (1-tt) + a.endPosition.r * tt)
   a.value.g = uint8(a.start.g * (1-tt) + a.endPosition.g * tt)
   a.value.b = uint8(a.start.b * (1-tt) + a.endPosition.b * tt)
@@ -321,8 +323,8 @@ proc getRandomSeq*(rands:var seq[float],n:int,l,r:float)=
 
 
 method update*(a: FrameSequence) =
-  a.valueSource.update()
-  var v = a.valueSource.value-a.startTime;
+  a.time.update()
+  var v = a.time.value-a.startTime;
 
   var last = a.frames[a.frames.len-1].time_end
   v = v-(v/last).int * last

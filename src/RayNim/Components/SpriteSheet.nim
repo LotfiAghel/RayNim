@@ -46,8 +46,7 @@ type
     rects*:seq[PlistNode]
 
 
-  PlistAnimation* = ref object of AnimComp
-    time*{. dfv(startFromNow()) .}: ValueProvider[float]
+  PlistAnimation* = ref object of AnimCompFloatSource
     plist*:ptr Plist
     frameStep*:float 
     drawCom*:D3Renderer

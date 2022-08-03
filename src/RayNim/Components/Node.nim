@@ -38,7 +38,7 @@ proc rmZ*(p:var Vector3):Vector2=
 type
   RenderComp*{.defaults.} = ref object of RootObj
     position*: Vector3
-    tint* :Color =White
+    tint* {. dfv(White) .} :Color =White
     visible*{. dfv(true) .} : bool
 
 
