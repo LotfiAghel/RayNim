@@ -312,8 +312,16 @@ proc setPath*(self:LineRenderer0,path:seq[PathPoint])=
 proc setThicknessMesh*(self:LineRenderer0,r,texR:seq[float])=
 
     
-    updateMeshFacesFromClosePath(self.model.meshes[0], self.path.len, r.len,false)
+    #updateMeshFacesFromClosePath(self.model.meshes[0], self.path.len, r.len,false)
   
+    
+
+    updateMeshPointFromPath(self.model.meshes[0],self.path,r,texR,1.0)
+
+    
+
+    #uploadMesh(result.addr, false)
+
     updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
       cfloat), 0)
 
@@ -337,6 +345,7 @@ proc setThickness*(self:LineRenderer,r:float)=
   
     #updateMeshBuffer(self.model.meshes[0], 0, self.model.meshes[0].vertices, self.model.meshes[0].vertexCount * 3*sizeof(
     #  cfloat), 0)
+
 
 proc setColor*(self:RenderComp,c:Color)=
     self.tint=c
