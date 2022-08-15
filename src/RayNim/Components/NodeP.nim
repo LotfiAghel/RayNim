@@ -234,16 +234,17 @@ proc updateMeshFacesFromClosePath*(result: var Mesh, pathLen: int, rLen:int,isCl
       
         for j in 0..<rLen-1:
             var
-                indicesCur = vrtxH+(j*2).cushort
+                indicesCur = (i*(rLen-1)*2+j*2).cushort
                 cur  = vrtxH+(j).cushort
-                nxt0 = vrtxH+cushort(j+rLen)
-                nxt1 = vrtxH+cushort(j+rLen+1)
+                cur1  = cur+1
+                nxt0 = cur+cushort(rLen)
+                nxt1 = cur1+cushort(rLen)
             if i == pathLen-1:
                 nxt0 = j.cushort
                 nxt1 = j.cushort+1
             if i != pathLen-1 or isClose:    
-                addT[3, cushort](result.indices, indicesCur, [cur, cur+1, nxt0])
-                addT[3, cushort](result.indices, indicesCur+1, [cur+1, nxt1, nxt0])
+                addT[3, cushort](result.indices, indicesCur, [cur, cur1, nxt0])
+                addT[3, cushort](result.indices, indicesCur+1, [cur1, nxt1, nxt0])
 
 
         
