@@ -321,6 +321,21 @@ template ForLoop*(time:untyped,l:float,r:float,dtTime:float,body:untyped)=
     time=r;
     body
 
+template ForLoopY*(time:untyped,l:float,r:float,dtTime:float,body:untyped)=
+  block:
+    var time=l
+    
+    var n:int=int(dtTime*60)
+    for i in 0..n :
+        body
+        yield false
+        time += (r-l)/n
+
+    time=r;
+    body
+    yield false
+
+
 
 
 template ForLoop11*(index:untyped,list:seq[typed],body:untyped)=
