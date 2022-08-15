@@ -39,8 +39,8 @@ type
     provider*: ValueProvider[Vector3]
 
   SetTransformTo* = ref object of AnimComp
-    scaleProvider*: ValueProvider[Vector3]
-    rotateProvider*: ValueProvider[Vector3]
+    scaleProvider*{. dfv( ConstProvider[Vector3](value:(1.0,1.0,1.0) ) ) .}: ValueProvider[Vector3]
+    rotateProvider*{. dfv( ConstProvider[Vector3](value:(0.0,0.0,0.0) ) ) .}: ValueProvider[Vector3]
 
   SetTintTo* = ref object of AnimComp
     scaleProvider*: ValueProvider[Color]

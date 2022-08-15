@@ -4,6 +4,7 @@ from nimraylib_now/rlgl as rl import nil
 import std/sequtils
 import std/sugar
 import std/times
+import std/tables
 import std/strformat
 from os import existsFile
 import ../Components/NodeP
@@ -13,10 +14,14 @@ from nimraylib_now/rlgl as rl import nil
 import system
 import asyncdispatch
 
-proc isTwoPow(i:int):bool=
+proc isTwoPow(i:int):bool{.inline.}=
     return not bool(i and (i-1) )
 
+var textures:Table[string,Texture2D]
+
 proc loadTexture2*(fn:string):Texture2D=
+  if fn in textures:
+    return textures[fn]
   result=loadTexture(fn)
   genTextureMipmaps(result.addr)
   setTextureFilter(result, 2)
