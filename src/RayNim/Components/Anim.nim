@@ -161,7 +161,9 @@ proc setPostion*(a: GNode, value: Vector3):GNode{.inline , discardable.} =
   result=a;
   a.position = value
 
-
+proc setPostion*(a: RenderComp, value: Vector3):RenderComp{.inline , discardable.} =
+  result=a;
+  a.position = value
 
 
 proc setPostion*(a: GNode, value: array[3,float]):GNode{.inline , discardable.} =
@@ -174,6 +176,10 @@ proc setPostion*(a: GNode, value: Vector2):GNode{.inline , discardable.} =
   a.position.y = value.y
   
 
+proc setPostion*(a: RenderComp, value: Vector2):RenderComp{.inline , discardable.} =
+  result=a;
+  a.position.x = value.x
+  a.position.y = value.y
 
 #AnimCompCreator(FastMoveTo, setPostion, LinearProvider)
 #AnimCompCreator(FastRotateTo, setRotation, LinearProvider)

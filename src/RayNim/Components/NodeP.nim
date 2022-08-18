@@ -45,9 +45,10 @@ method update*(a: GNode) {.base.} =
 
     a.onUpdate.removeFinished()
             
-
-    for idx in 0..<a.childs.len:
+    var idx=0;
+    while idx < a.childs.len :
         a.childs[idx].update()
+        idx+=1
 
 
 

@@ -37,7 +37,7 @@ proc rmZ*(p:var Vector3):Vector2=
 
 type
   RenderComp*{.defaults.} = ref object of RootObj
-    position*: Vector3
+    position*{. dfv((0.0,0.0,0.0)) .}: Vector3
     tint* {. dfv(White) .} :Color =White
     visible*{. dfv(true) .} : bool
 
@@ -123,6 +123,7 @@ type
     drawComps*: seq[RenderComp]
     onUpdate*: seq[AnimComp]
     visible*{. dfv(true) .}: bool
+    
   GNode2D* = ref object of GNode
     contentSize*: Vector2
   Button* = ref object of GNode2D
@@ -175,14 +176,16 @@ type
   let args = callsite()]#
 #initGNode()
 
+proc delete*[T](x: var seq[T], item: T) {.noSideEffect.} =
+  var z=x.find(item)  
+  if z != -1 :
+    x.delete(z)
+
 method removeFromParent*(a:GNode){.base.}=
   try:
     if a.parent.isNil:
       return;
-    var z=a.parent.childs.find(a)
-    echo z,"/",a.parent.childs.len
-    
-    a.parent.childs.delete(z)
+    a.parent.childs.delete(a)
   except:
     echo "aaa"
 
@@ -303,7 +306,7 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   var size=measureTextEx(a.font, a.text,(float)a.font.baseSize*a.size, 0.0)
-  drawTextEx(a.font, a.text, Vector2(x:  -size.x/2,y:  -size.y/2 ), (float)a.font.baseSize*a.size, 0.0, White) #a.tint
+  drawTextEx(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, 0.0, a.tint) #a.tint
   
   #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
