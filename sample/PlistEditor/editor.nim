@@ -18,7 +18,7 @@ import std/marshal
 import std/strutils
 import std/json
 import serialization/object_serialization
-import NSrilizer/Srilizer
+import NSerializer/Serializer
 import RayNim/Components/SpriteSheet
 import RayNim/Basics/Geometry
 var designResolution* = Vector2(x:1980.0,y:1080)
@@ -138,13 +138,23 @@ proc initAssets()=
     
     #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/Shine Card/Shine Card_{s}.png")
     #var tmp=loadImage(fmt"resources/seq/5 _ 1Win/5 _ 1Win_{s}.png")
-    var tmp=loadImage(fmt"resources/seq/Shine Card/Shine Card_{s}.png")
+    #var tmp=loadImage(fmt"resources/seq/Shine Card/Shine Card_{s}.png")
+    #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/2 _ Cross/2 _ Cross_{s}.png")
+    #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/3 _ Circle/3 _ Circle_{s}.png")
+    #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/2 _ Cross/2 _ Cross_{s}.png")
+    #var tmp=loadImage(fmt"/home/lotfi/Downloads/DS PNG Sequences/3 _ Circle/3 _ Circle_{s}.png")
+    var tmp=loadImage(fmt"/media/lotfi/e99af40c-c2a6-464e-a9fa-97ba7e206f1f/home/lotfi/downloads/Line/Line_{s}.png")
+    #var tmp=loadImage(fmt"/media/lotfi/e99af40c-c2a6-464e-a9fa-97ba7e206f1f/home/lotfi/downloads/Spiral Glow/Spiral_glow_{s}.png")
+    
+    
     
     #tmp.addr.imageResizeNN(int(tmp.width/2),int(tmp.height/2))
     part.img=tmp
     
     #trimImg(part.img.addr)
-    part.dstRect= getImageAlphaBorder(part.img,0.05)
+    part.dstRect= getImageAlphaBorder(part.img,0.1)
+    part.dstRect.height=120
+    part.dstRect.y=(278-part.dstRect.height)/2
     #loadImageColors(part.img);
     
     #part.dstRect -= Vector2(x:100,y:100)
@@ -159,7 +169,7 @@ proc initAssets()=
     #part.dstRect.height/=part.img.height
     var pos=Vector2(x:part.img.width*0.5,y:part.img.height*0.5)
     #shien card
-    pos = (722.0,336.0)
+    #pos = (717.0,188.0)
     part.img.addr.imageCrop(part.dstRect)
     part.dstRect -= pos
     
@@ -196,10 +206,10 @@ proc initAssets()=
   fromJson(plist2.addr,s)
   echo toJson(plist2.addr)
   #quit()
-  anim=PlistAnimation(
-    plist:plist2.addr,
-    frameStep:0.1,
-    mesh:z.model.meshes[0].addr
+  anim=PlistAnimation.Create(
+    plist=plist2.addr,
+    frameStep=0.1,
+    drawCom=z
   )
   echo plist
   #echo anim.plist

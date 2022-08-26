@@ -38,7 +38,7 @@ proc rmZ*(p:var Vector3):Vector2=
 type
   RenderComp*{.defaults.} = ref object of RootObj
     position*{. dfv((0.0,0.0,0.0)) .}: Vector3
-    tint* {. dfv(White) .} :Color =White
+    tint* {. dfv((255,255,255,255)) .} :Color =White
     visible*{. dfv(true) .} : bool
 
 
@@ -126,36 +126,44 @@ type
     
   GNode2D* = ref object of GNode
     contentSize*: Vector2
+
   Button* = ref object of GNode2D
     onClick* : OnClick
     btnRect* : BtnRect
+
   Dragable* = ref object of GNode2D
     onClick* : OnClick
     onDragMove* : OnClick
     onDragEnd* : OnClick
     btnRect* : BtnRect
+
   BtnRect* =ref object 
     rect* : Rectangle
     btn*   : Button
+
   DragArea* =ref object 
     rect* : Rectangle
     btn*   : GNode
     onStart* : OnClick2
     onMove* : OnClick2
     onEnd* : OnClick2
+
   DragPoint* =ref object 
     pos* : Vector3
     btn*   : GNode
     onStart* : OnClick2
     onMove* : OnClick2
     onEnd* : OnClick2
+
   AnimComp* = ref object of RootObj
     target*: GNode
     finished*{. dfv(false) .}:bool
+
   AnimCompTimed* = ref object of AnimComp
     discard
 
   OnClick2 = proc(d:DragDataPtr) 
+  
   DragData* = object
     globalStartPosition* :Vector2
     globalCurPosition* :Vector2
@@ -276,7 +284,9 @@ type
   LabelRenderer* = ref object of RenderComp
     text*: string
     font* :Font
+
     size*{. dfv(1.0).}:float
+    spacing*{. dfv(0.0).}:float
 
 #implDefaults(D3Renderer)     
 proc setTexture*(self:D3Renderer,texture:Texture2D):D3Renderer {. discardable.}=
@@ -306,8 +316,12 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
   var size=measureTextEx(a.font, a.text,(float)a.font.baseSize*a.size, 0.0)
-  drawTextEx(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, 0.0, a.tint) #a.tint
-  
+  rl.disableDepthMask()   
+  rl.disableDepthTest()
+  drawTextEx(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, a.spacing, a.tint) #a.tint
+  #drawText(a.font, a.text,  pos.x+a.position.x-size.x/2,  pos.y+a.position.y-size.y/2 , (float)a.font.baseSize*a.size,  a.tint) #a.tint
+  rl.enableDepthMask()   
+  rl.enableDepthTest()
   #drawTextPro(a.font, a.text, Vector2(x:  0,y:  0),Vector2(x:  0,y:  0),0, (float)a.font.baseSize, 0.0, White)
 
 

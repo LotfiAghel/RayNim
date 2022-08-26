@@ -10,7 +10,7 @@ backend             = "c"
 requires "nim >= 1.4.2" 
 requires  "nimraylib_now"
 
-requires "NSrilizer"
+requires "NSerializer"
 requires "NimUseFullMacros"
 
 

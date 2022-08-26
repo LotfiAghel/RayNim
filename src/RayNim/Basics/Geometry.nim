@@ -16,7 +16,7 @@ import std/marshal
 import std/strutils
 import std/json
 import serialization/object_serialization
-import NSrilizer/Srilizer
+import NSerializer/Serializer
 
 
 

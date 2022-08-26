@@ -18,7 +18,7 @@ import std/marshal
 import std/strutils
 import std/json
 import serialization/object_serialization
-import NSrilizer/Srilizer
+import NSerializer/Serializer
 import ../Basics/Geometry
 
 
@@ -59,9 +59,9 @@ type
 
 
 
-defineToAllP(Rectangle)
-defineToAllP(PlistNode)
-defineToAllP(Plist)
+implAllFuncsP(Rectangle)
+implAllFuncsP(PlistNode)
+implAllFuncsP(Plist)
 
 
 
@@ -77,6 +77,7 @@ method update*(self: PlistAnimation) =
   echo self.plist.rects[i]
   var rect=self.plist.rects[i]
   var mesh=self.drawCom.getMesh
+  
   mesh[].updateRectMesh(
     [rect.dstRect.x.float ,rect.dstRect.y],[rect.dstRect.getX2(),rect.dstRect.getY2()],
     # [-100.0,-100.0],[100.0,100.0],
