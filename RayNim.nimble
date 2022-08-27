@@ -12,6 +12,7 @@ requires  "nimraylib_now"
 
 requires "NSerializer"
 requires "NimUseFullMacros"
+requires "nimraylib_now"
 
 
 from os import `/`, parentDir
