@@ -1,4 +1,5 @@
 # RayNim
 
 
-Componenet Base GameEngine over nim_raylib
+Componenet Base GameEngine over https://github.com/greenfork/nimraylib_now.git
+
