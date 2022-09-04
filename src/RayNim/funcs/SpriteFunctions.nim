@@ -43,38 +43,51 @@ proc loadTextureAsync*(fn:string):Future[Texture2D] {.async.}=
   echo "genTextureMipmaps--------"
   #return   Future[Texture2D](result)
 
-proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=
+
+proc modelRendererCreate*(texture:Texture2D,scaleXY:Vector2,flipY=false):Model=
     #var mesh = loadModelFromMesh(makeMesh())
-    var t=scale
-    t*=0.5;
+    
     var mint=[0.0,0.0]
     var maxt=[1.0,1.0]
     if flipY:
         mint[1] = 1.0
         maxt[1] = 0.0
-    return loadModelFromMesh(makeRectMesh([-float(texture.width)*t,-float(texture.height)*t],[float(texture.width)*t,float(texture.height)*t],mint,maxt))
-    
-    
-    
+    return loadModelFromMesh(
+              makeRectMesh(
+                [-float(texture.width)*scaleXY.x*0.5,-float(texture.height)*scaleXY.y*0.5],
+                [float(texture.width)*scaleXY.x*0.5,float(texture.height)*scaleXY.y*0.5],
+                mint,maxt))
 
-proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Renderer=
-    var model = modelRendererCreate(texture,scale,flipY)
+
+proc modelRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):Model=
+    #var mesh = loadModelFromMesh(makeMesh())
+    result =  modelRendererCreate(texture,(scale,scale),flipY)
+    
+    
+    
+proc spriteRendererCreate*(texture:Texture2D,scaleXY:Vector2,flipY=false):D3Renderer=
+    var model = modelRendererCreate(texture,scaleXY,flipY)
     model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture # MATERIAL_MAP_DIFFUSE is now ALBEDO
     result = D3Renderer.Create(model= model)
     result.tint=White
 
+proc spriteRendererCreate*(texture:Texture2D,scale:float=1.0,flipY=false):D3Renderer=
+    result=spriteRendererCreate(texture,(scale,scale),flipY);
 
 
-
-proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
+proc spriteNodeCreate*(texture:Texture2D,scaleXY:Vector2,flipY=false):GNode=
     
     result=GNode.Create(
                   position= (0.0,0.0, 0.0),
                   transform= scale(1.0, 1.0, 1.0),
                   drawComps= @[
-                          spriteRendererCreate(texture,scale,flipY).RenderComp,
+                          spriteRendererCreate(texture,scaleXY,flipY).RenderComp,
                           
                   ])
+
+proc spriteNodeCreate*(texture:Texture2D,scale:float=1.0,flipY=false):GNode=
+    
+    result=spriteNodeCreate(texture,(scale,scale),flipY)
 
 
 
