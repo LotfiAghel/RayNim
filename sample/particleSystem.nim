@@ -49,6 +49,9 @@ method getValue(a:ReduceProvider,idx:GridPostion):float{.base.}=
 
 method getValue(a:ReduceProvider2,idx:GridPostion):float=
     var tt= -idx.dis*0.01+a.valueSource.value
+    if tt<0.001:
+      tt=1.0
+    
     var t=sin(sqrt(tt*10))
     t*=t
     return t * 20 * (@[-1.0,1.0])[idx.j]*(idx.dis/1000+1)*0.5
@@ -62,8 +65,7 @@ proc updateMeshPointFromPath2*(result: var Mesh, path: seq[PathPoint],r2:ReduceP
     var prv=path[0].pos
     for i in 0..<path.len:
 
-        var z=(prv-path[i].pos).length
-        prv=path[i].pos
+        
         var vrtxH = (i*textR.len).cushort
         for j in 0..<textR.len:
             var p = path[i].pos+path[i].normal*r2.getValue(GridPostion(i:i,j:j,dis:d))
@@ -71,7 +73,8 @@ proc updateMeshPointFromPath2*(result: var Mesh, path: seq[PathPoint],r2:ReduceP
             addT[3, cfloat](result.normals, vrtxH+cushort(j), [cfloat(0), 0, 1])
             addT[2, cfloat](result.texcoords, vrtxH+cushort(j), [d.cfloat, textR[j]])
 
-       
+        var z=(prv-path[i].pos).length
+        prv=path[i].pos
         d = d+textRatio*z
         #vrtxH = vrtxH+cushort(r.len)*2
 

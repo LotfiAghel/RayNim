@@ -35,13 +35,23 @@ proc removeFinished*(a:var seq[AnimComp]){. inline .}=
             k+=1
     a.setLen(k)
         
-
+proc removeFirstIfFinished*(a:var seq[AnimComp]):bool{. inline .}=
+    
+    if not a[0].finished:
+        return false;
+    for i in 1..<a.len:
+        a[i-1]=a[i]
+    a.setLen(a.len-1)
 
 method update*(a: GNode) {.base.} =
     if a.visible==false:
         return;
     for idx in 0..<a.onUpdate.len:
         a.onUpdate[idx].update()
+
+
+    #[for idx in 0..<a.ccOnUpdate.len:
+        a.ccOnUpdate[idx].update()]#
 
     a.onUpdate.removeFinished()
             

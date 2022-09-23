@@ -74,6 +74,39 @@
                 "cwd": "${workspaceRoot}"
             },
             "type": "shell",
-        }
+        },
+        {
+            "label": "nim:LineTools",
+            "command": "nim",
+            "args": [
+                "compile",
+                "-g",
+                "-d:debug",
+                "--debugger:native",
+                "-o:${workspaceRoot}/bin/LineTools/main",
+                "sample/LineTools/main.nim"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "type": "shell",
+        },
+        {
+            "label": "nim:particle",
+            "command": "nim",
+            "args": [
+                "compile",
+                "-g",
+                "-d:debug",
+                "--debugger:native",
+                "-o:${workspaceRoot}/bin/particle",
+                "sample/particle.nim"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "type": "shell",
+        },
+        
     ]
 }

@@ -22,6 +22,33 @@
             "program": "${workspaceFolder}/bin/main",
             "args": [],
             "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "nim: debug current file",
+            "preLaunchTask": "nim: build current file (for debugging)",
+            "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "nim:LineTools",
+            "preLaunchTask": "nim:LineTools",
+            "program": "${workspaceFolder}/bin/LineTools/main",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "nim:particle",
+            "preLaunchTask": "nim:particle",
+            "program": "${workspaceFolder}/bin/particle",
+            "args": [],
+            "cwd": "${workspaceFolder}",
         }
         
     ]

@@ -22,28 +22,12 @@ let countTo20: iterator(): int = countTo(20)
 echo countTo20()
 ######
 
-
-
-
 type
   ValueProvider0 = ref object of RootObj
+    finished* {.dfv(false).}: bool
+
   ValueProvider*[T] = ref object of ValueProvider0
     value*: T
-  CorutineHandler* = ref object of AnimComp
-    provider*: iterator(): bool
-  CoroutineListHandler* = ref object of AnimComp
-    providers*: seq[iterator(): bool]
-    h*{. dfv(0).}:int
-
-  MoveTo* = ref object of AnimComp
-    provider*: ValueProvider[Vector3]
-
-  SetTransformTo* = ref object of AnimComp
-    scaleProvider*{. dfv( ConstProvider[Vector3](value:(1.0,1.0,1.0) ) ) .}: ValueProvider[Vector3]
-    rotateProvider*{. dfv( ConstProvider[Vector3](value:(0.0,0.0,0.0) ) ) .}: ValueProvider[Vector3]
-
-  SetTintTo* = ref object of AnimComp
-    scaleProvider*: ValueProvider[Color]
     
 
   TimeProvider* = ref object of ValueProvider[float]
@@ -65,18 +49,44 @@ type
     outerMult*: float
     outerPlus*: float
 
-
   LinearProvider*[T] = ref object of ProviderConvertor[float,T]
     endPosition*: T
     start*: T
-    
+  
+  LinearProviderInRange*[T] = ref object of ProviderConvertor[float,T]
+    endPosition*: T
+    start*: T
+
   ProceduralProvider*[T] = ref object of ProviderConvertor[float,T]
     procedure*: proc(t:float):T
 
   ConstProvider*[T] = ref object of ValueProvider[T]
+  
   CustomCall* = ref object of AnimComp
     funct*:proc()
 
+
+type
+  
+  CorutineHandler* = ref object of AnimComp
+    provider*: iterator(): bool
+  CoroutineListHandler* = ref object of AnimComp
+    providers*: seq[iterator(): bool]
+    h*{. dfv(0).}:int
+
+  MoveTo* = ref object of AnimComp
+    provider*: ValueProvider[Vector3]
+
+  SetTransformTo* = ref object of AnimComp
+    scaleProvider*{. dfv( ConstProvider[Vector3](value:(1.0,1.0,1.0) ) ) .}: ValueProvider[Vector3]
+    rotateProvider*{. dfv( ConstProvider[Vector3](value:(0.0,0.0,0.0) ) ) .}: ValueProvider[Vector3]
+
+  
+  SetTintTo* = ref object of AnimComp
+    scaleProvider*: ValueProvider[Color]
+    
+
+  
   AnimCompFloatSource* = ref object of AnimComp
      time*{. dfv(startFromNow()) .}: ValueProvider[float]
 
@@ -91,15 +101,13 @@ type
     textRatio*: float
 
 
-  FrameData = object
-    time_end*: float
-    mesh*: RenderComp
-  FrameSequence* = ref object of AnimCompFloatSource
-    startTime*: float
-    activeMeshIdx*: int
-    frames*: seq[FrameData]
+
+
   SeqAnimation* = ref object of AnimComp
     anims*:seq[AnimComp] 
+
+
+
 
 
 var p_p: ValueProvider[float] = LinearProvider[float](valueSource: ConstProvider[float](value: 0), endPosition: 0.0,
@@ -109,6 +117,10 @@ var p_p2: ValueProvider[Vector3] = LinearProvider[Vector3](valueSource: ConstPro
 
 
 method update(a: ValueProvider0){.base.} =
+  discard
+  #echo "ValueProvider0.update"
+
+method update2(a: ValueProvider0,t:float){.base.} =
   discard
   #echo "ValueProvider0.update"
 
@@ -136,6 +148,9 @@ method update*(a: TimeRange) =
   var tt = a.valueSource.value
   a.value = (tt-a.zeroPoint)/(a.endPoint-a.zeroPoint)
 
+method update2*(a: TimeRange,t:float) =
+  a.value = (t-a.zeroPoint)/(a.endPoint-a.zeroPoint)
+
 method update*(a: TimeShift) =
   a.valueSource.update()
   var tt = a.valueSource.value
@@ -145,6 +160,12 @@ method update*(a: SinEfect) =
   a.valueSource.update()
   var tt = a.valueSource.value
   a.value = sin(tt*3.14*2/50)
+
+method update2*(a: SinEfect,t:float) =
+  var t = a.valueSource.value
+  a.value = sin(t*3.14*2/50)
+
+
 
 
 
@@ -257,6 +278,22 @@ template declUpdate(T: type) =
     a.value = a.start * (1-tt) + a.endPosition * tt
     GetNumber(T) = GetNumber(T) + 1
 
+  method update2*(a: LinearProvider[T],t:float) =
+    a.value = a.start * (1-t) + a.endPosition * t
+    GetNumber(T) = GetNumber(T) + 1
+  
+
+  method update*(a: LinearProviderInRange[T]) =
+    a.valueSource.update()
+    var tt = a.valueSource.value;
+    if tt>1.0:
+      a.finished = true
+    a.value = a.start * (1-tt) + a.endPosition * tt
+    GetNumber(T) = GetNumber(T) + 1
+
+  method update2*(a: LinearProviderInRange[T],t:float) =
+    a.value = a.start * (1-t) + a.endPosition * t
+    GetNumber(T) = GetNumber(T) + 1
 
 
 declUpdate(float)
@@ -328,39 +365,6 @@ proc getRandomSeq*(rands:var seq[float],n:int,l,r:float)=
 
 
 
-method update*(a: FrameSequence) =
-  a.time.update()
-  var v = a.time.value-a.startTime;
-
-  var last = a.frames[a.frames.len-1].time_end
-  v = v-(v/last).int * last
-  var idx = 0;
-  for i in 0 ..< a.frames.len:
-    idx = i
-    if v < a.frames[i].time_end:
-      break;
-
-  a.target.drawComps[0] = a.frames[idx].mesh
-
-
-
-
-
-proc init*(a: FrameSequence, texture: Texture2D, rows, cols: int,
-    time: float): FrameSequence{.discardable.} =
-  a.frames = @[]
-
-  for i in 0..<rows:
-    for j in 0..<cols:
-      var model = loadModelFromMesh(makeRectMesh([0.0, 0.0], [1.0, 1.0], [
-          i*1.0/rows, j*1.0/cols], [(i+1)*1.0/rows, (j+1)*1.0/cols]))
-      model.materials[0].maps[MaterialMapIndex.Albedo.int].texture = texture
-      var rr2 = D3Renderer(model: model)
-      a.frames.add(
-        FrameData(time_end: time*(i*cols+j+1)/(rows*cols), mesh: rr2)
-      )
-  return a
-
 
 
 
@@ -368,8 +372,15 @@ proc init*(a: FrameSequence, texture: Texture2D, rows, cols: int,
 
 method update*(a: MoveTo) =
   a.provider.update()
+  if a.provider.finished:
+    a.finished=true;
+
   a.target.setPostion(a.provider.value)
 
+method update2*(a: MoveTo,t:float) =
+    a.provider.update2(t)
+    a.target.setPostion(a.provider.value)
+    
 
 method update*(a: CorutineHandler) =
   discard a.provider()
@@ -471,13 +482,21 @@ proc startFromNow*(t:ValueProvider[float]):TimeShift=
 proc startFromNow*():TimeShift=
   return TimeShift(shiftValue: -globalTime.value,valueSource:globalTime)
 
+#proc startFromNow*[T](time:float ,endValue:T):LinearProviderInRange[T]=
+#  return LinearProviderInRange[T].Create( =endValue );
 
+#[method setTarget*(self: SeqAnimation,target:GNode){.base.} =
+  procCall self.AnimComp.setTarget(target);
+  if self.anims.len<1:
+    self.anims[0].setTarget(self.target)]#
 
 method update*(self: SeqAnimation) =
-  self.anims.removeFinished()
+  var x=self.anims.removeFirstIfFinished()
   if self.anims.len<1:
     self.finished = true
     return;
-  self.anims[0].target=self.target
+  if self.anims[0].target != self.target:
+    self.anims[0].setTarget(self.target)
   self.anims[0].update()
   
+

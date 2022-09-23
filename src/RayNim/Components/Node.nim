@@ -54,55 +54,6 @@ macro getBodySAve(class: typed) =
   z = class.getImpl()
 
 
-proc someProcThatMayRunInCompileTime(): bool =
-  when nimvm:
-    # This branch is taken at compile time.
-    result = true
-  else:
-    # This branch is taken in the executable.
-    result = false
-
-#getBodySAve(RenderComp)
-
-#[proc MyNew_RenderComp(visible:bool=true):RenderComp=
-  return RenderComp(visible:visible)]#
-
-#[
-macro getImp2(t:type):NimNode=
-  return t.getImpl()
-static:
-  var class = z
-  echo class.treeRepr
-  echo "----"
-  when someProcThatMayRunInCompileTime():
-    echo "aaa"
-  template getFunc(T:NimNode): untyped=
-    proc MyNew_RenderComp2():T=
-      discard
-
-    template getFuncParm(T:NimNode): untyped=
-      x:T
-
-    var x = getAst(getFunc(RenderComp))
-
-    for i in getReclist(class):
-      echo "......."
-
-      echo i.treeRepr
-      if(i[0].kind == nnkPragmaExpr):
-        echo "======="
-        echo i[0][1][0][1].treeRepr
-        x[3].add(getAst(getFuncParm(RenderComp)))
-      echo x.treeRepr
-      echo getAst(getImp2(MyNew_RenderComp)).treeRepr
-
-    ]#
-proc aaa() =
-  echo "aaa"
-
-
-
-var zz: NimNode = z
 
 
 var defaultCamera*: Camera
@@ -122,6 +73,7 @@ type
     parent*{. dfv(nil) .} : GNode
     drawComps*: seq[RenderComp]
     onUpdate*: seq[AnimComp]
+    ccOnUpdate*: seq[CCAnim]
     visible*{. dfv(true) .}: bool
     
   GNode2D* = ref object of GNode
@@ -158,6 +110,11 @@ type
   AnimComp* = ref object of RootObj
     target*: GNode
     finished*{. dfv(false) .}:bool
+    
+  CCAnim* = ref object of AnimComp
+    time* :float
+
+
 
   AnimCompTimed* = ref object of AnimComp
     discard
@@ -207,8 +164,11 @@ method update*(a: AnimCompTimed) =
 method clone*(a: AnimComp): AnimComp =
   echo "nothing"
 
+method setTarget*(self: AnimComp,target:GNode){.base.} =
+  self.target=target;
+  
 proc addOnUpdate*(t: GNode, a: AnimComp): GNode{.discardable.}  =
-  a.target = t;
+  a.setTarget(t);
   t.onUpdate.add a
   return t
 
@@ -288,6 +248,8 @@ type
     size*{. dfv(1.0).}:float
     spacing*{. dfv(0.0).}:float
 
+
+
 #implDefaults(D3Renderer)     
 proc setTexture*(self:D3Renderer,texture:Texture2D):D3Renderer {. discardable.}=
   self.model.materials[0].maps[0].texture =  texture
@@ -304,7 +266,6 @@ proc myProject(matrix: Matrix, inp: Vector3): Vector2 =
 
 method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
-  echo "I am ImageRenderer"
   drawTextureV(a.texture, a.position.rmZ(), White)
 
 
@@ -319,6 +280,8 @@ method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
   rl.disableDepthMask()   
   rl.disableDepthTest()
   drawTextEx(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, a.spacing, a.tint) #a.tint
+  
+  #drawText3D(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, a.spacing, 0.0, false, a.tint);
   #drawText(a.font, a.text,  pos.x+a.position.x-size.x/2,  pos.y+a.position.y-size.y/2 , (float)a.font.baseSize*a.size,  a.tint) #a.tint
   rl.enableDepthMask()   
   rl.enableDepthTest()

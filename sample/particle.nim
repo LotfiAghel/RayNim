@@ -16,6 +16,8 @@ import RayNim/CameraTool
 
 import particleSystem
 
+import RayNim/Components/CocoAnim as co
+
 
 var designResolution* = Vector2(x:1980.0,y:1080)
 var screenWidth* = int(designResolution.x*0.9)
@@ -167,8 +169,10 @@ proc initAssets()=
   backGroundNode = spriteNodeCreate(circle).setPostion((0.0,0.0,0.0))
  
   backGroundNode.addChild spriteNodeCreate(circle,0.1).setPostion((100.0,0.0,0.0))
-
-
+  
+  backGroundNode.addAction(
+    2.0,co.MoveTo(finish:(100.0,100.0,0.0))
+  )
   var line0 = LineRenderer.Create()
   var pp0:seq[Vector2]
   pp0= @[Vector2(x:0.0,y:0.0),(100.0,100.0)]
@@ -187,14 +191,15 @@ proc initAssets()=
   line.drawComps.add line.lineRender
   line.update()
   #var valueSource=LinearProvider[float].Create(endPosition=0.1,start=0.0)
-  line.addOnUpdate GridMeshAnimator.Create(
-    line=line.lineRender,
-    path=getPathPoints(pp),
-    reduce2=ReduceProvider2.Create(
-      valueSource=LinearProvider[float].Create(endPosition=1.0,start=0.0)
-      #valueSource=LinearProvider(endPosition:0.1,start:0.0)
+  if true:
+    line.addOnUpdate GridMeshAnimator.Create(
+      line=line.lineRender,
+      path=getPathPoints(pp),
+      reduce2=ReduceProvider2.Create(
+        valueSource=LinearProvider[float].Create(endPosition=1.0,start=0.0)
+        #valueSource=LinearProvider(endPosition:0.1,start:0.0)
+      )
     )
-  )
   #line.lineRender.init2(line.lineRender.path,@[-1.0,1.0],@[0.0,1.0],1.0,false)
   
   #[
