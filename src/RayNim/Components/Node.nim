@@ -276,7 +276,7 @@ method draw*(a: ImageRenderer, pos: Vector3, gtransform: Matrix,
 
 method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
         camera: Camera) {.inline.} =
-  var size=measureTextEx(a.font, a.text,(float)a.font.baseSize*a.size, 0.0)
+  var size=measureTextEx(a.font, a.text,(float)a.font.baseSize*a.size, a.spacing)
   rl.disableDepthMask()   
   rl.disableDepthTest()
   drawTextEx(a.font, a.text, Vector2(x:  pos.x+a.position.x-size.x/2,y:  pos.y+a.position.y-size.y/2 ), (float)a.font.baseSize*a.size, a.spacing, a.tint) #a.tint
@@ -290,13 +290,12 @@ method draw*(a: LabelRenderer, pos: Vector3, gtransform: Matrix,
 
 template ForLoop*(time:untyped,l:float,r:float,dtTime:float,body:untyped)=
   block:
-    var time=l
-    
-    var n:int=int(dtTime*60)
+    var time = l
+    let n:int=int(dtTime*60)
+
     for i in 0..n :
+        time = l+(r-l)*i/n
         body
-        #yield 0
-        time += (r-l)/n
 
     time=r;
     body

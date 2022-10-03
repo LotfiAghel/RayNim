@@ -10,6 +10,7 @@ import std/random
 #######################3
 import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
+import std/math as math
 proc countTo(n: int): iterator(): int =
   return iterator(): int =
     var i = 0
@@ -389,7 +390,8 @@ method update*(a: CorutineHandler) =
 
 method update*(a: CoroutineListHandler) =
   if a.h>=a.providers.len :
-    return ;#TODO set done=true
+    a.finished=true
+    return 
   var done=a.providers[a.h]()
   if done :
     a.h+=1
@@ -442,6 +444,7 @@ proc hideIterator*(z:GNode): iterator(): bool =
 
 proc delay*(t:float): iterator(): bool =
   return iterator (): bool  =
+    yield false
     ForLoop time,0.0,0.0,t:
       yield false
     yield true
@@ -500,3 +503,20 @@ method update*(self: SeqAnimation) =
   self.anims[0].update()
   
 
+
+
+proc easeInOutElastic*(x: float): float =
+  const c5 = (2 * 3.1415) / 4.5;
+
+  if x < 0.001:
+    return 0.0;
+  if x>0.999:
+    return 1.0
+  if x < 0.5:
+     return -(math.pow(2, 20 * x - 10) * math.sin((20 * x - 11.125) * c5)) / 2
+  else:
+    return (math.pow(2, -20 * x + 10) * math.sin((20 * x - 11.125) * c5)) / 2 + 1;
+
+
+proc easeInOutSine*(x: float): float=
+  return -(math.cos(PI * x) - 1) / 2;
